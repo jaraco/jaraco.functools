@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from functools import reduce
+
 def compose(*funcs):
 	"""
 	Compose any number of unary functions into a single unary
