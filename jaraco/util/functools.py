@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 from functools import reduce
 
 def compose(*funcs):
@@ -7,7 +7,7 @@ def compose(*funcs):
 	function.
 
 	>>> import textwrap
-	>>> str.strip(textwrap.dedent(compose.__doc__)) == compose(str.strip, textwrap.dedent)(compose.__doc__)
+	>>> unicode.strip(textwrap.dedent(compose.__doc__)) == compose(unicode.strip, textwrap.dedent)(compose.__doc__)
 	True
 	"""
 
@@ -22,7 +22,7 @@ def method_caller(method_name, *args, **kwargs):
 
 	>>> lower = method_caller('lower')
 	>>> lower('MyString')
-	'mystring'
+	u'mystring'
 	"""
 	def call_method(target):
 		func = getattr(target, method_name)
