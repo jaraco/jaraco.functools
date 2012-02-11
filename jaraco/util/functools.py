@@ -1,5 +1,6 @@
 from __future__ import absolute_import, unicode_literals
-from functools import reduce
+
+import functools
 
 def compose(*funcs):
 	"""
@@ -12,7 +13,7 @@ def compose(*funcs):
 	"""
 
 	compose_two = lambda f1, f2: lambda v: f1(f2(v))
-	return reduce(compose_two, funcs)
+	return functools.reduce(compose_two, funcs)
 
 def method_caller(method_name, *args, **kwargs):
 	"""
@@ -28,3 +29,25 @@ def method_caller(method_name, *args, **kwargs):
 		func = getattr(target, method_name)
 		return func(*args, **kwargs)
 	return call_method
+
+def once(func):
+	"""
+	Decorate func so it's only ever called the first time.
+
+	This decorator can ensure that an expensive or non-idempotent function
+	will not be expensive on subsequent calls and is idempotent.
+
+	>>> func = once(lambda a: a+3)
+	>>> func(3)
+	6
+	>>> func(9)
+	6
+	>>> func('12')
+	6
+	"""
+	@functools.wraps(func)
+	def wrapper(*args, **kwargs):
+		if not hasattr(func, 'always_returns'):
+			func.always_returns = func(*args, **kwargs)
+		return func.always_returns
+	return wrapper
