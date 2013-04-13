@@ -4,15 +4,21 @@ import functools
 
 def compose(*funcs):
 	"""
-	Compose any number of unary functions into a single unary
-	function.
+	Compose any number of unary functions into a single unary function.
 
 	>>> import textwrap
 	>>> unicode.strip(textwrap.dedent(compose.__doc__)) == compose(unicode.strip, textwrap.dedent)(compose.__doc__)
 	True
+
+	Compose also allows the innermost function to take arbitrary arguments.
+
+	>>> round_three = lambda x: round(x, ndigits=3)
+	>>> f = compose(round_three, int.__truediv__)
+	>>> [f(3*x, x+1) for x in range(1,10)]
+	[1.5, 2.0, 2.25, 2.4, 2.5, 2.571, 2.625, 2.667, 2.7]
 	"""
 
-	compose_two = lambda f1, f2: lambda v: f1(f2(v))
+	compose_two = lambda f1, f2: lambda *args, **kwargs: f1(f2(*args, **kwargs))
 	return functools.reduce(compose_two, funcs)
 
 def method_caller(method_name, *args, **kwargs):
