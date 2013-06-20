@@ -7,7 +7,8 @@ def compose(*funcs):
 	Compose any number of unary functions into a single unary function.
 
 	>>> import textwrap
-	>>> unicode.strip(textwrap.dedent(compose.__doc__)) == compose(unicode.strip, textwrap.dedent)(compose.__doc__)
+	>>> from .six import text_type
+	>>> text_type.strip(textwrap.dedent(compose.__doc__)) == compose(text_type.strip, textwrap.dedent)(compose.__doc__)
 	True
 
 	Compose also allows the innermost function to take arbitrary arguments.
@@ -29,7 +30,7 @@ def method_caller(method_name, *args, **kwargs):
 
 	>>> lower = method_caller('lower')
 	>>> lower('MyString')
-	u'mystring'
+	'mystring'
 	"""
 	def call_method(target):
 		func = getattr(target, method_name)
