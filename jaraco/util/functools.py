@@ -7,7 +7,7 @@ def compose(*funcs):
 	Compose any number of unary functions into a single unary function.
 
 	>>> import textwrap
-	>>> from .six import text_type
+	>>> from six import text_type
 	>>> text_type.strip(textwrap.dedent(compose.__doc__)) == compose(text_type.strip, textwrap.dedent)(compose.__doc__)
 	True
 
