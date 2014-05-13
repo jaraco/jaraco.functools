@@ -102,14 +102,12 @@ def method_cache(method):
 	a.calls would have been 76 (due to the cached value of 0 having been
 	flushed by the 'b' instance).
 	"""
-	cache_name = '_cached_' + method.__name__
 	# todo: allow the cache to be customized
 	cache_wrapper = functools.lru_cache()
 	def wrapper(self, *args, **kwargs):
-		if not hasattr(self, cache_name):
-			# first call, create the cached func
-			bound_method = functools.partial(method, self)
-			cached_func = cache_wrapper(bound_method)
-			setattr(self, cache_name, cached_func)
-		return getattr(self, cache_name)(*args, **kwargs)
+		# it's the first call, replace the method with a cached, bound method
+		bound_method = functools.partial(method, self)
+		cached_method = cache_wrapper(bound_method)
+		setattr(self, method.__name__, cached_method)
+		return cached_method(*args, **kwargs)
 	return wrapper
