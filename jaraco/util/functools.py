@@ -58,3 +58,40 @@ def once(func):
 			func.always_returns = func(*args, **kwargs)
 		return func.always_returns
 	return wrapper
+
+def method_cache(method):
+	"""
+	Wrap lru_cache to support storing the cache data in the object instances.
+
+	>>> class MyClass:
+	...     calls = 0
+	...
+	...     @method_cache
+	...     def method(self, value):
+	...         self.calls += 1
+	...         return value
+
+	>>> a = MyClass()
+	>>> a.method(3)
+	3
+	>>> for x in range(75):
+	...     res = a.method(x)
+	>>> a.calls
+	75
+
+	Note that the apparent behavior will be exactly like that of lru_cache
+	except that the cache is stored on each instance, so values in one
+	instance will not flush values from another, and when an instance is
+	deleted, so are the cached values for that instance.
+	"""
+	cache_name = '_cached_' + method.__name__
+	# todo: allow the cache to be customized
+	cache_wrapper = functools.lru_cache()
+	def wrapper(self, *args, **kwargs):
+		if not hasattr(self, cache_name):
+			# first call, create the cached func
+			bound_method = functools.partial(method, self)
+			cached_func = cache_wrapper(bound_method)
+			setattr(self, cache_name, cached_func)
+		return getattr(self, cache_name)(*args, **kwargs)
+	return wrapper
