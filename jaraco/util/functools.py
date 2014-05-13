@@ -63,6 +63,10 @@ def method_cache(method):
 	"""
 	Wrap lru_cache to support storing the cache data in the object instances.
 
+	Abstracts the common paradigm where the method explicitly saves an
+	underscore-prefixed protected property on first call and returns that
+	subsequently.
+
 	>>> class MyClass:
 	...     calls = 0
 	...
@@ -83,6 +87,20 @@ def method_cache(method):
 	except that the cache is stored on each instance, so values in one
 	instance will not flush values from another, and when an instance is
 	deleted, so are the cached values for that instance.
+
+	>>> b = MyClass()
+	>>> for x in range(35):
+	...     res = b.method(x)
+	>>> b.calls
+	35
+	>>> a.method(0)
+	0
+	>>> a.calls
+	75
+
+	Note that if method had been decorated with ``functools.lru_cache()``,
+	a.calls would have been 76 (due to the cached value of 0 having been
+	flushed by the 'b' instance).
 	"""
 	cache_name = '_cached_' + method.__name__
 	# todo: allow the cache to be customized
