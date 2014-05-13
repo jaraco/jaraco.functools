@@ -101,6 +101,10 @@ def method_cache(method):
 	Note that if method had been decorated with ``functools.lru_cache()``,
 	a.calls would have been 76 (due to the cached value of 0 having been
 	flushed by the 'b' instance).
+
+	See also
+	http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
+	for another implementation and additional justification.
 	"""
 	# todo: allow the cache to be customized
 	cache_wrapper = functools.lru_cache()
