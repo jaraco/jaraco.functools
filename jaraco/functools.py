@@ -119,3 +119,19 @@ def method_cache(method):
 		setattr(self, method.__name__, cached_method)
 		return cached_method(*args, **kwargs)
 	return wrapper
+
+
+def apply(transform):
+	"""
+	Decorate a function with a transform function that is
+	invoked on results returned from the decorated function.
+
+	>>> @apply(reversed)
+	... def get_numbers(start):
+	...     return range(start, start+3)
+	>>> list(get_numbers(4))
+	[6, 5, 4]
+	"""
+	def wrap(func):
+		return compose(transform, func)
+	return wrap
