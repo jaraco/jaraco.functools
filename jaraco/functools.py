@@ -2,6 +2,7 @@ from __future__ import absolute_import, unicode_literals
 
 import functools
 
+
 def compose(*funcs):
 	"""
 	Compose any number of unary functions into a single unary function.
@@ -22,6 +23,7 @@ def compose(*funcs):
 	compose_two = lambda f1, f2: lambda *args, **kwargs: f1(f2(*args, **kwargs))
 	return functools.reduce(compose_two, funcs)
 
+
 def method_caller(method_name, *args, **kwargs):
 	"""
 	Return a function that will call a named method on the
@@ -36,6 +38,7 @@ def method_caller(method_name, *args, **kwargs):
 		func = getattr(target, method_name)
 		return func(*args, **kwargs)
 	return call_method
+
 
 def once(func):
 	"""
@@ -58,6 +61,7 @@ def once(func):
 			func.always_returns = func(*args, **kwargs)
 		return func.always_returns
 	return wrapper
+
 
 def method_cache(method):
 	"""
