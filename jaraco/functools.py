@@ -1,4 +1,4 @@
-from __future__ import absolute_import, unicode_literals
+from __future__ import absolute_import, unicode_literals, print_function
 
 import functools
 
@@ -135,3 +135,23 @@ def apply(transform):
 	def wrap(func):
 		return compose(transform, func)
 	return wrap
+
+
+def call_aside(f, *args, **kwargs):
+    """
+    Call a function for its side effect after initialization.
+
+    >>> @call_aside
+    ... def func(): print("called")
+    called
+    >>> func()
+    called
+
+    Use functools.partial to pass parameters to the initial call
+
+    >>> @functools.partial(call_aside, name='bingo')
+    ... def func(name): print("called with", name)
+    called with bingo
+    """
+    f(*args, **kwargs)
+    return f
