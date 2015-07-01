@@ -139,43 +139,43 @@ def apply(transform):
 
 
 def call_aside(f, *args, **kwargs):
-    """
-    Call a function for its side effect after initialization.
+	"""
+	Call a function for its side effect after initialization.
 
-    >>> @call_aside
-    ... def func(): print("called")
-    called
-    >>> func()
-    called
+	>>> @call_aside
+	... def func(): print("called")
+	called
+	>>> func()
+	called
 
-    Use functools.partial to pass parameters to the initial call
+	Use functools.partial to pass parameters to the initial call
 
-    >>> @functools.partial(call_aside, name='bingo')
-    ... def func(name): print("called with", name)
-    called with bingo
-    """
-    f(*args, **kwargs)
-    return f
+	>>> @functools.partial(call_aside, name='bingo')
+	... def func(name): print("called with", name)
+	called with bingo
+	"""
+	f(*args, **kwargs)
+	return f
 
 
 class Throttler(object):
-    """
-    Rate-limit a function (or other callable)
-    """
-    def __init__(self, func, max_rate=float('Inf')):
-        if isinstance(func, Throttler):
-            func = func.func
-        self.func = func
-        self.max_rate = max_rate
-        self.reset()
+	"""
+	Rate-limit a function (or other callable)
+	"""
+	def __init__(self, func, max_rate=float('Inf')):
+		if isinstance(func, Throttler):
+			func = func.func
+		self.func = func
+		self.max_rate = max_rate
+		self.reset()
 
-    def reset(self):
-        self.last_called = 0
+	def reset(self):
+		self.last_called = 0
 
-    def __call__(self, *args, **kwargs):
-        # ensure at least 1/max_rate seconds from last call
-        elapsed = time.time() - self.last_called
-        must_wait = 1 / self.max_rate - elapsed
-        time.sleep(max(0, must_wait))
-        self.last_called = time.time()
-        return self.func(*args, **kwargs)
+	def __call__(self, *args, **kwargs):
+		# ensure at least 1/max_rate seconds from last call
+		elapsed = time.time() - self.last_called
+		must_wait = 1 / self.max_rate - elapsed
+		time.sleep(max(0, must_wait))
+		self.last_called = time.time()
+		return self.func(*args, **kwargs)
