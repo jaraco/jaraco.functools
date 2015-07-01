@@ -1,6 +1,7 @@
 from __future__ import absolute_import, unicode_literals, print_function
 
 import functools
+import time
 
 
 def compose(*funcs):
@@ -155,3 +156,27 @@ def call_aside(f, *args, **kwargs):
     """
     f(*args, **kwargs)
     return f
+
+
+class Throttler(object):
+    """
+    Rate-limit a function (or other callable)
+    """
+    def __init__(self, func, max_rate=float('Inf')):
+        if isinstance(func, Throttler):
+            func = func.func
+        self.func = func
+        self.max_rate = max_rate
+        self.reset()
+
+    def reset(self):
+        self.last_called = 0
+
+    def __call__(self, *args, **kwargs):
+        # ensure at least 1/max_rate seconds from last call
+        elapsed = time.time() - self.last_called
+        must_wait = 1 / self.max_rate - elapsed
+        time.sleep(max(0, must_wait))
+        self.last_called = time.time()
+        return self.func(*args, **kwargs)
+
