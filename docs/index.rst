@@ -1,15 +1,17 @@
-Welcome to jaraco.functools's documentation!
-============================================
+Welcome to jaraco.functools documentation!
+==========================================
 
 .. toctree::
    :maxdepth: 1
 
    history
 
+
 .. automodule:: jaraco.functools
     :members:
     :undoc-members:
     :show-inheritance:
+
 
 Indices and tables
 ==================
