@@ -39,3 +39,12 @@ class TestThrottler(object):
 		wrapped_again = Throttler(wrapped, 60)
 		assert wrapped_again.func is next
 		assert wrapped_again.max_rate == 60
+
+	def test_throttled_method(self):
+		class ThrottledMethodClass(object):
+			@Throttler
+			def echo(self, arg):
+				return arg
+
+		tmc = ThrottledMethodClass()
+		assert tmc.echo('foo') == 'foo'

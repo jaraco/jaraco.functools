@@ -179,4 +179,3 @@ class Throttler(object):
         time.sleep(max(0, must_wait))
         self.last_called = time.time()
         return self.func(*args, **kwargs)
-
