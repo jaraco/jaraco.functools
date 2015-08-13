@@ -29,6 +29,9 @@ setup_params = dict(
 	install_requires=[
 	],
 	extras_require={
+		':python_version=="2.7"': [
+			'backports.functools_lru_cache>=1.0.3',
+		],
 	},
 	setup_requires=[
 		'setuptools_scm',

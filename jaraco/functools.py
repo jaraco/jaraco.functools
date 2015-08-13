@@ -3,6 +3,11 @@ from __future__ import absolute_import, unicode_literals, print_function, divisi
 import functools
 import time
 
+try:
+	from functools import lru_cache
+except ImportError:
+	from backports.functools_lru_cache import lru_cache
+
 
 def compose(*funcs):
 	"""
@@ -112,7 +117,7 @@ def method_cache(method):
 	for another implementation and additional justification.
 	"""
 	# todo: allow the cache to be customized
-	cache_wrapper = functools.lru_cache()
+	cache_wrapper = lru_cache()
 	def wrapper(self, *args, **kwargs):
 		# it's the first call, replace the method with a cached, bound method
 		bound_method = functools.partial(method, self)
