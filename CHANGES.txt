@@ -1,3 +1,13 @@
+1.6
+===
+
+``method_cache`` now accepts a cache_wrapper parameter, allowing
+for custom parameters to an ``lru_cache`` or an entirely different
+cache implementation.
+
+Use ``backports.functools_lru_cache`` to provide ``lru_cache`` for
+Python 2.
+
 1.5
 ===
 
