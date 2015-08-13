@@ -108,6 +108,10 @@ def method_cache(method):
 	>>> a.calls
 	75
 
+	Clear the cache with ``.cache_clear()``
+
+	>>> a.method.cache_clear()
+
 	Note that if method had been decorated with ``functools.lru_cache()``,
 	a.calls would have been 76 (due to the cached value of 0 having been
 	flushed by the 'b' instance).
