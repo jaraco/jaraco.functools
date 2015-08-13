@@ -69,7 +69,7 @@ def once(func):
 	return wrapper
 
 
-def method_cache(method):
+def method_cache(method, cache_wrapper=None):
 	"""
 	Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -108,20 +108,27 @@ def method_cache(method):
 	>>> a.calls
 	75
 
+	Note that if method had been decorated with ``functools.lru_cache()``,
+	a.calls would have been 76 (due to the cached value of 0 having been
+	flushed by the 'b' instance).
+
 	Clear the cache with ``.cache_clear()``
 
 	>>> a.method.cache_clear()
 
-	Note that if method had been decorated with ``functools.lru_cache()``,
-	a.calls would have been 76 (due to the cached value of 0 having been
-	flushed by the 'b' instance).
+	Another cache wrapper may be supplied:
+
+	>>> cache = lru_cache(maxsize=2)
+	>>> MyClass.method2 = method_cache(lambda self: 3, cache_wrapper=cache)
+	>>> a = MyClass()
+	>>> a.method2()
+	3
 
 	See also
 	http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
 	for another implementation and additional justification.
 	"""
-	# todo: allow the cache to be customized
-	cache_wrapper = lru_cache()
+	cache_wrapper = cache_wrapper or lru_cache()
 	def wrapper(self, *args, **kwargs):
 		# it's the first call, replace the method with a cached, bound method
 		bound_method = functools.partial(method, self)
