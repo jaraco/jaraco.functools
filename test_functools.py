@@ -1,7 +1,8 @@
 import itertools
 import time
+import copy
 
-from jaraco.functools import Throttler
+from jaraco.functools import Throttler, method_cache
 
 
 class TestThrottler(object):
@@ -48,3 +49,23 @@ class TestThrottler(object):
 
 		tmc = ThrottledMethodClass()
 		assert tmc.echo('foo') == 'foo'
+
+
+class TestMethodCache:
+	def test_deepcopy(self):
+		"""
+		A deepcopy of an object with a method cache should still
+		succeed.
+		"""
+		class ClassUnderTest:
+			calls = 0
+
+			@method_cache
+			def method(self, value):
+				self.calls += 1
+				return value
+
+		ob = ClassUnderTest()
+		copy.deepcopy(ob)
+		ob.method(1)
+		copy.deepcopy(ob)
