@@ -1,6 +1,9 @@
 import itertools
 import time
 import copy
+import sys
+
+import pytest
 
 from jaraco.functools import Throttler, method_cache
 
@@ -52,6 +55,8 @@ class TestThrottler(object):
 
 
 class TestMethodCache:
+	@pytest.mark.skipif('sys.version == (3, 5, 0)',
+		reason="https://bugs.python.org/issue25447")
 	def test_deepcopy(self):
 		"""
 		A deepcopy of an object with a method cache should still
