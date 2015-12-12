@@ -55,7 +55,7 @@ class TestThrottler(object):
 
 
 class TestMethodCache:
-	@pytest.mark.skipif('sys.version == (3, 5, 0)',
+	@pytest.mark.skipif('sys.version_info == (3, 5, 0)',
 		reason="https://bugs.python.org/issue25447")
 	def test_deepcopy(self):
 		"""
