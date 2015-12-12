@@ -2,11 +2,18 @@ from __future__ import absolute_import, unicode_literals, print_function, divisi
 
 import functools
 import time
+import warnings
 
 try:
 	from functools import lru_cache
 except ImportError:
-	from backports.functools_lru_cache import lru_cache
+	try:
+		from backports.functools_lru_cache import lru_cache
+	except ImportError:
+		try:
+			from functools32 import lru_cache
+		except ImportError:
+			warnings.warn("No lru_cache available")
 
 
 def compose(*funcs):

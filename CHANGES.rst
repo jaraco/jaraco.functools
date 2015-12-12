@@ -1,3 +1,12 @@
+1.8
+===
+
+More generous handling of missing lru_cache when installed on
+Python 2 and older pip. Now all functools except ``method_cache``
+will continue to work even if ``backports.functools_lru_cache``
+is not installed. Also allows functools32 as a fallback if
+available.
+
 1.7
 ===
 
