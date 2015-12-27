@@ -55,8 +55,6 @@ class TestThrottler(object):
 
 
 class TestMethodCache:
-	bad_vers = '(3, 5, 0) <= sys.version_info < (3, 5, 1)'
-	@pytest.mark.skipif(bad_vers, reason="https://bugs.python.org/issue25447")
 	def test_deepcopy(self):
 		"""
 		A deepcopy of an object with a method cache should still
