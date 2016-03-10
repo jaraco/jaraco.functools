@@ -142,7 +142,37 @@ def method_cache(method, cache_wrapper=None):
 		cached_method = cache_wrapper(bound_method)
 		setattr(self, method.__name__, cached_method)
 		return cached_method(*args, **kwargs)
-	return wrapper
+	return _special_method_cache(method, cache_wrapper) or wrapper
+
+
+def _special_method_cache(method, cache_wrapper):
+	"""
+	Because Python treats special methods differently, it's not
+	possible to use instance attributes to implement the cached
+	methods.
+
+	Instead, install the wrapper method under a different name
+	and return a simple proxy to that wrapper.
+
+	https://github.com/jaraco/jaraco.functools/issues/5
+	"""
+	name = method.__name__
+	special_names = '__getattr__', '__getitem__'
+	if name not in special_names:
+		return
+
+	wrapper_name = '__cached' + name
+
+	def proxy(self, *args, **kwargs):
+		if wrapper_name not in vars(self):
+			bound = functools.partial(method, self)
+			cache = cache_wrapper(bound)
+			setattr(self, wrapper_name, cache)
+		else:
+			cache = getattr(self, wrapper_name)
+		return cache(*args, **kwargs)
+
+	return proxy
 
 
 def apply(transform):

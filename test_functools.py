@@ -73,7 +73,7 @@ class TestMethodCache:
 		ob.method(1)
 		copy.deepcopy(ob)
 
-	def test_magic_methods(self):
+	def test_special_methods(self):
 		"""
 		Test method_cache with __getitem__ and __getattr__.
 		"""
