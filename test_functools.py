@@ -77,7 +77,7 @@ class TestMethodCache:
 		"""
 		Test method_cache with __getitem__ and __getattr__.
 		"""
-		class ClassUnderTest:
+		class ClassUnderTest(object):
 			getitem_calls = 0
 			getattr_calls = 0
 
