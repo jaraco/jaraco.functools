@@ -72,3 +72,31 @@ class TestMethodCache:
 		copy.deepcopy(ob)
 		ob.method(1)
 		copy.deepcopy(ob)
+
+	def test_magic_methods(self):
+		"""
+		Test method_cache with __getitem__ and __getattr__.
+		"""
+		class ClassUnderTest:
+			getitem_calls = 0
+			getattr_calls = 0
+
+			@method_cache
+			def __getitem__(self, item):
+				self.getitem_calls += 1
+				return item
+
+			@method_cache
+			def __getattr__(self, name):
+				self.getattr_calls += 1
+				return name
+
+		ob = ClassUnderTest()
+
+		# __getitem__
+		_ = ob[1] + ob[1]
+		assert ob.getitem_calls == 1
+
+		# __getattr__
+		_ = ob.one + ob.one
+		assert ob.getattr_calls == 1
