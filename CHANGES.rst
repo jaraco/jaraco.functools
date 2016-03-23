@@ -1,3 +1,9 @@
+1.9
+===
+
+Add ``retry_call``, a general-purpose function retry mechanism.
+See ``test_functools`` for tests and example usage.
+
 1.8
 ===
 

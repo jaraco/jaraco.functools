@@ -41,6 +41,7 @@ setup_params = dict(
 	tests_require=[
 		'pytest>=2.8',
 		'six',
+		'backports.unittest_mock',
 	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",

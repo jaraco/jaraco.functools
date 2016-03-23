@@ -250,3 +250,19 @@ def first_invoke(func1, func2):
 		func1()
 		return func2(*args, **kwargs)
 	return wrapper
+
+
+def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
+	"""
+	Given a callable func, trap the indicated exceptions
+	for up to 'retries' times, invoking cleanup on the
+	exception. On the final attempt, allow any exceptions
+	to propagate.
+	"""
+	for attempt in range(retries):
+		try:
+			return func()
+		except trap:
+			cleanup()
+
+	return func()

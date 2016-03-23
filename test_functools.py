@@ -1,11 +1,12 @@
 import itertools
 import time
 import copy
-import sys
+import random
+from unittest import mock
 
 import pytest
 
-from jaraco.functools import Throttler, method_cache
+from jaraco.functools import Throttler, method_cache, retry_call
 
 
 class TestThrottler(object):
@@ -102,3 +103,68 @@ class TestMethodCache:
 		# __getattr__
 		_ = ob.one + ob.one
 		assert ob.getattr_calls == 1
+
+
+class TestRetry:
+	def attempt(self):
+		if next(self.fails_left):
+			raise ValueError("Failed!")
+		return "Success"
+
+	def set_to_fail(self, times):
+		self.fails_left = itertools.count(times, -1)
+
+	def test_set_to_fail(self):
+		"""
+		Test this test's internal failure mechanism.
+		"""
+		self.set_to_fail(times=2)
+		with pytest.raises(ValueError):
+			self.attempt()
+		with pytest.raises(ValueError):
+			self.attempt()
+		assert self.attempt() == 'Success'
+
+	def test_retry_call_succeeds(self):
+		self.set_to_fail(times=2)
+		res = retry_call(self.attempt, retries=2, trap=ValueError)
+		assert res == "Success"
+
+	def test_retry_call_fails(self):
+		"""
+		Failing more than the number of retries should
+		raise the underlying error.
+		"""
+		self.set_to_fail(times=3)
+		with pytest.raises(ValueError) as res:
+			retry_call(self.attempt, retries=2, trap=ValueError)
+		assert str(res.value) == 'Failed!'
+
+	def test_retry_multiple_exceptions(self):
+		self.set_to_fail(times=2)
+		errors = ValueError, NameError
+		res = retry_call(self.attempt, retries=2, trap=errors)
+		assert res == "Success"
+
+	def test_retry_exception_superclass(self):
+		self.set_to_fail(times=2)
+		res = retry_call(self.attempt, retries=2, trap=Exception)
+		assert res == "Success"
+
+	def test_default_traps_nothing(self):
+		self.set_to_fail(times=1)
+		with pytest.raises(ValueError):
+			retry_call(self.attempt, retries=1)
+
+	def test_default_does_not_retry(self):
+		self.set_to_fail(times=1)
+		with pytest.raises(ValueError):
+			retry_call(self.attempt, trap=Exception)
+
+	def test_cleanup_called_on_exception(self):
+		calls = random.randint(1, 10)
+		cleanup = mock.Mock()
+		self.set_to_fail(times=calls)
+		retry_call(self.attempt, retries=calls, cleanup=cleanup, trap=Exception)
+		assert cleanup.call_count == calls
+		assert cleanup.called_with()
