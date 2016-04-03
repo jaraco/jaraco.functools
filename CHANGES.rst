@@ -1,3 +1,8 @@
+1.10
+====
+
+Use Github for continuous deployment to PyPI.
+
 1.9
 ===
 
