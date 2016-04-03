@@ -17,17 +17,20 @@ sphinx = ['sphinx'] if needs_sphinx else []
 needs_wheel = {'release', 'bdist_wheel'}.intersection(sys.argv)
 wheel = ['wheel'] if needs_wheel else []
 
+name = 'jaraco.functools'
+description = ''
+
 setup_params = dict(
-	name='jaraco.functools',
+	name=name,
 	use_scm_version=True,
 	author="Jason R. Coombs",
 	author_email="jaraco@jaraco.com",
-	description="jaraco.functools",
+	description=description or name,
 	long_description=long_description,
-	url="https://github.com/jaraco/jaraco.functools",
+	url="https://github.com/jaraco/" + name,
 	packages=setuptools.find_packages(),
 	include_package_data=True,
-	namespace_packages=['jaraco'],
+	namespace_packages=name.split('.')[:-1],
 	install_requires=[
 	],
 	extras_require={
