@@ -1,3 +1,8 @@
+1.11
+====
+
+Include dates and links in changelog.
+
 1.10
 ====
 
