@@ -131,6 +131,9 @@ def method_cache(method, cache_wrapper=None):
 	>>> a.method2()
 	3
 
+	Caution - do not subsequently wrap the method with another decorator, such
+	as ``@property``, which changes the semantics of the function.
+
 	See also
 	http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
 	for another implementation and additional justification.
