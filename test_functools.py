@@ -5,6 +5,7 @@ import random
 from unittest import mock
 
 import pytest
+from jaraco.classes import properties
 
 from jaraco.functools import Throttler, method_cache, retry_call
 
@@ -111,6 +112,22 @@ class TestMethodCache:
 		"""
 		class ClassUnderTest(object):
 			@property
+			@method_cache
+			def mything(self):
+				return random.random()
+
+		ob = ClassUnderTest()
+
+		assert ob.mything == ob.mything
+
+	@pytest.mark.xfail(reason="can't replace property with cache; #6")
+	def test_non_data_property(self):
+		"""
+		A non-data property also does not work because the property
+		gets replaced with a method.
+		"""
+		class ClassUnderTest(object):
+			@properties.NonDataProperty
 			@method_cache
 			def mything(self):
 				return random.random()

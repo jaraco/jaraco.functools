@@ -45,6 +45,7 @@ setup_params = dict(
 		'pytest>=2.8',
 		'six',
 		'backports.unittest_mock',
+		'jaraco.classes',
 	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
