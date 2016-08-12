@@ -1,3 +1,10 @@
+1.12
+====
+
+Issue #6: Added a bit of documentation and xfail tests showing
+that the ``method_cache`` can't be used with other decorators
+such as ``property``.
+
 1.11
 ====
 
