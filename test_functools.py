@@ -104,6 +104,21 @@ class TestMethodCache:
 		_ = ob.one + ob.one
 		assert ob.getattr_calls == 1
 
+	@pytest.mark.xfail(reason="can't replace property with cache; #6")
+	def test_property(self):
+		"""
+		Can a method_cache decorated method also be a property?
+		"""
+		class ClassUnderTest(object):
+			@property
+			@method_cache
+			def mything(self):
+				return random.random()
+
+		ob = ClassUnderTest()
+
+		assert ob.mything == ob.mything
+
 
 class TestRetry:
 	def attempt(self):
