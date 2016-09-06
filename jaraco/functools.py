@@ -4,6 +4,7 @@ import functools
 import time
 import warnings
 
+
 try:
 	from functools import lru_cache
 except ImportError:
@@ -14,6 +15,9 @@ except ImportError:
 			from functools32 import lru_cache
 		except ImportError:
 			warnings.warn("No lru_cache available")
+
+
+import more_itertools.recipes
 
 
 def compose(*funcs):
@@ -269,3 +273,19 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
 			cleanup()
 
 	return func()
+
+
+def print_yielded(func):
+    """
+    Convert a generator into a function that prints all yielded elements
+
+    >>> @print_yielded
+    ... def x():
+    ...     yield 3; yield None
+    >>> x()
+    3
+    None
+    """
+    print_all = functools.partial(map, print)
+    print_results = compose(more_itertools.recipes.consume, print_all, func)
+    return functools.wraps(func)(print_results)

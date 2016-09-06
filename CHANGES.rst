@@ -1,3 +1,9 @@
+1.13
+====
+
+Add ``print_yielded`` func implementing the func of the same
+name found in autocommand docs.
+
 1.12
 ====
 
