@@ -1,3 +1,8 @@
+1.15
+====
+
+Add ``assign_params`` function.
+
 1.14
 ====
 

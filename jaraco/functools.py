@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals, print_function, divisi
 import functools
 import time
 import warnings
+import inspect
 
 
 try:
@@ -305,3 +306,22 @@ def pass_none(func):
         if param is not None:
             return func(param, *args, **kwargs)
     return wrapper
+
+
+def assign_params(func, namespace):
+	"""
+	Assign parameters from namespace where func solicits.
+
+	>>> def func(x, y=3):
+	...     print(x, y)
+	>>> assigned = assign_params(func, dict(x=2, z=4))
+	>>> assigned()
+	2 3
+	"""
+	sig = inspect.signature(func)
+	call_ns = {
+		k: namespace[k]
+		for k in sig.parameters.keys()
+		if k in namespace
+	}
+	return functools.partial(func, **call_ns)
