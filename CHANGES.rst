@@ -1,3 +1,8 @@
+1.14
+====
+
+Add ``pass_none`` decorator function.
+
 1.13
 ====
 
