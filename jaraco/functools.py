@@ -318,10 +318,15 @@ def assign_params(func, namespace):
 	>>> assigned()
 	2 3
 	"""
-	sig = inspect.signature(func)
+	try:
+		sig = inspect.signature(func)
+		params = sig.parameters.keys()
+	except AttributeError:
+		spec = inspect.getargspec(func)
+		params = spec.args
 	call_ns = {
 		k: namespace[k]
-		for k in sig.parameters.keys()
+		for k in params
 		if k in namespace
 	}
 	return functools.partial(func, **call_ns)
