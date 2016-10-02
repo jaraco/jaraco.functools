@@ -1,6 +1,3 @@
-jaraco.functools
-================
-
 .. image:: https://img.shields.io/pypi/v/jaraco.functools.svg
    :target: https://pypi.org/project/jaraco.functools
 
@@ -12,3 +9,7 @@ jaraco.functools
    :target: http://travis-ci.org/jaraco/jaraco.functools
 
 Additional functools in the spirit of stdlib's functools.
+
+License is indicated in the project metadata (typically one or more
+of the Trove classifiers). For more details, see `this explanation
+<https://github.com/jaraco/skeleton/issues/1>`_.
