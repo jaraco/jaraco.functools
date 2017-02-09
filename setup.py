@@ -3,20 +3,16 @@
 # Project skeleton maintained at https://github.com/jaraco/skeleton
 
 import io
-import sys
 
 import setuptools
 
 with io.open('README.rst', encoding='utf-8') as readme:
 	long_description = readme.read()
 
-needs_wheel = {'release', 'bdist_wheel', 'dists'}.intersection(sys.argv)
-wheel = ['wheel'] if needs_wheel else []
-
 name = 'jaraco.functools'
 description = ''
 
-setup_params = dict(
+params = dict(
 	name=name,
 	use_scm_version=True,
 	author="Jason R. Coombs",
@@ -36,8 +32,8 @@ setup_params = dict(
 		],
 	},
 	setup_requires=[
-		'setuptools_scm>=1.9',
-	] + wheel,
+		'setuptools_scm>=1.15.0',
+	],
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 		"Intended Audience :: Developers",
@@ -49,4 +45,4 @@ setup_params = dict(
 	},
 )
 if __name__ == '__main__':
-	setuptools.setup(**setup_params)
+	setuptools.setup(**params)
