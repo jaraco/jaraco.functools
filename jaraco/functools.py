@@ -4,6 +4,7 @@ import functools
 import time
 import warnings
 import inspect
+from itertools import count
 
 
 try:
@@ -267,7 +268,8 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
 	exception. On the final attempt, allow any exceptions
 	to propagate.
 	"""
-	for attempt in range(retries):
+	attempts = count() if retries == float('inf') else range(retries)
+	for attempt in attempts:
 		try:
 			return func()
 		except trap:
