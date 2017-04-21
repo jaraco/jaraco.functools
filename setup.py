@@ -28,6 +28,18 @@ params = dict(
 		'more_itertools',
 	],
 	extras_require={
+		'testing': [
+			'pytest>=2.8',
+			'pytest-sugar',
+			'six',
+			'backports.unittest_mock',
+			'jaraco.classes',
+		],
+		'docs': [
+			'sphinx',
+			'jaraco.packaging>=3.2',
+			'rst.linker>=1.9',
+		],
 		':python_version=="2.7"': [
 			'backports.functools_lru_cache>=1.0.3',
 		],
