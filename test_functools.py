@@ -200,3 +200,10 @@ class TestRetry:
 		retry_call(self.attempt, retries=calls, cleanup=cleanup, trap=Exception)
 		assert cleanup.call_count == calls
 		assert cleanup.called_with()
+
+	def test_infinite_retries(self):
+		self.set_to_fail(times=999)
+		cleanup = mock.Mock()
+		retry_call(self.attempt, retries=float('inf'), cleanup=cleanup,
+			trap=Exception)
+		assert cleanup.call_count == 999

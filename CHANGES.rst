@@ -1,7 +1,12 @@
-1.15.1
+1.15.2
 ======
 
 Refresh packaging.
+
+1.15.1
+======
+
+Fix assign_params on Python 2.
 
 1.15
 ====
