@@ -1,3 +1,9 @@
+1.16
+====
+
+#7: ``retry_call`` now accepts infinity for the ``retries``
+parameter.
+
 1.15.2
 ======
 
