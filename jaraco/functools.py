@@ -279,35 +279,35 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
 
 
 def print_yielded(func):
-    """
-    Convert a generator into a function that prints all yielded elements
+	"""
+	Convert a generator into a function that prints all yielded elements
 
-    >>> @print_yielded
-    ... def x():
-    ...     yield 3; yield None
-    >>> x()
-    3
-    None
-    """
-    print_all = functools.partial(map, print)
-    print_results = compose(more_itertools.recipes.consume, print_all, func)
-    return functools.wraps(func)(print_results)
+	>>> @print_yielded
+	... def x():
+	...     yield 3; yield None
+	>>> x()
+	3
+	None
+	"""
+	print_all = functools.partial(map, print)
+	print_results = compose(more_itertools.recipes.consume, print_all, func)
+	return functools.wraps(func)(print_results)
 
 
 def pass_none(func):
-    """
-    Wrap func so it's not called if its first param is None
+	"""
+	Wrap func so it's not called if its first param is None
 
-    >>> print_text = pass_none(print)
-    >>> print_text('text')
-    text
-    >>> print_text(None)
-    """
-    @functools.wraps(func)
-    def wrapper(param, *args, **kwargs):
-        if param is not None:
-            return func(param, *args, **kwargs)
-    return wrapper
+	>>> print_text = pass_none(print)
+	>>> print_text('text')
+	text
+	>>> print_text(None)
+	"""
+	@functools.wraps(func)
+	def wrapper(param, *args, **kwargs):
+		if param is not None:
+			return func(param, *args, **kwargs)
+	return wrapper
 
 
 def assign_params(func, namespace):
