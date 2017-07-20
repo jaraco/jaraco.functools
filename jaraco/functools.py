@@ -1,4 +1,6 @@
-from __future__ import absolute_import, unicode_literals, print_function, division
+from __future__ import (
+	absolute_import, unicode_literals, print_function, division,
+)
 
 import functools
 import time
@@ -28,7 +30,8 @@ def compose(*funcs):
 
 	>>> import textwrap
 	>>> from six import text_type
-	>>> text_type.strip(textwrap.dedent(compose.__doc__)) == compose(text_type.strip, textwrap.dedent)(compose.__doc__)
+	>>> stripped = text_type.strip(textwrap.dedent(compose.__doc__))
+	>>> compose(text_type.strip, textwrap.dedent)(compose.__doc__) == stripped
 	True
 
 	Compose also allows the innermost function to take arbitrary arguments.
@@ -145,12 +148,14 @@ def method_cache(method, cache_wrapper=None):
 	for another implementation and additional justification.
 	"""
 	cache_wrapper = cache_wrapper or lru_cache()
+
 	def wrapper(self, *args, **kwargs):
 		# it's the first call, replace the method with a cached, bound method
 		bound_method = functools.partial(method, self)
 		cached_method = cache_wrapper(bound_method)
 		setattr(self, method.__name__, cached_method)
 		return cached_method(*args, **kwargs)
+
 	return _special_method_cache(method, cache_wrapper) or wrapper
 
 
