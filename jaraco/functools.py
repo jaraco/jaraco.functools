@@ -283,6 +283,20 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
 	return func()
 
 
+def retry(*r_args, **r_kwargs):
+	"""
+	Decorator wrapper for retry_call. Accepts arguments to retry_call
+	except func and then returns a decorator for the decorated function.
+	"""
+	def decorate(func):
+		@functools.wraps(func)
+		def wrapper(*f_args, **f_kwargs):
+			bound = functools.partial(func, *f_args, **f_kwargs)
+			return retry_call(bound, *r_args, **r_kwargs)
+		return wrapper
+	return decorate
+
+
 def print_yielded(func):
 	"""
 	Convert a generator into a function that prints all yielded elements

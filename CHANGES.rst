@@ -1,3 +1,8 @@
+1.17
+====
+
+Add ``retry`` decorator.
+
 1.16
 ====
 

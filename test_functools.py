@@ -7,7 +7,7 @@ from unittest import mock
 import pytest
 from jaraco.classes import properties
 
-from jaraco.functools import Throttler, method_cache, retry_call
+from jaraco.functools import Throttler, method_cache, retry_call, retry
 
 
 class TestThrottler(object):
@@ -207,3 +207,9 @@ class TestRetry:
 		retry_call(self.attempt, retries=float('inf'), cleanup=cleanup,
 			trap=Exception)
 		assert cleanup.call_count == 999
+
+	def test_decorator(self):
+		self.set_to_fail(times=1)
+		attempt = retry(retries=1, trap=Exception)(self.attempt)
+		res = attempt()
+		assert res == "Success"
