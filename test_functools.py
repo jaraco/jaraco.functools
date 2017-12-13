@@ -2,6 +2,7 @@ import itertools
 import time
 import copy
 import random
+import functools
 from unittest import mock
 
 import pytest
@@ -138,9 +139,11 @@ class TestMethodCache:
 
 
 class TestRetry:
-	def attempt(self):
+	def attempt(self, arg=None):
 		if next(self.fails_left):
 			raise ValueError("Failed!")
+		if arg:
+			arg.touch()
 		return "Success"
 
 	def set_to_fail(self, times):
@@ -208,8 +211,24 @@ class TestRetry:
 			trap=Exception)
 		assert cleanup.call_count == 999
 
+	def test_with_arg(self):
+		self.set_to_fail(times=0)
+		arg = mock.Mock()
+		bound = functools.partial(self.attempt, arg)
+		res = retry_call(bound)
+		assert res == 'Success'
+		assert arg.touch.called
+
 	def test_decorator(self):
 		self.set_to_fail(times=1)
 		attempt = retry(retries=1, trap=Exception)(self.attempt)
 		res = attempt()
 		assert res == "Success"
+
+	def test_decorator_with_arg(self):
+		self.set_to_fail(times=0)
+		attempt = retry()(self.attempt)
+		arg = mock.Mock()
+		res = attempt(arg)
+		assert res == 'Success'
+		assert arg.touch.called
