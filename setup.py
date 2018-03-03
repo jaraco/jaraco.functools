@@ -37,17 +37,24 @@ params = dict(
 	],
 	extras_require={
 		'testing': [
+			# upstream
 			'pytest>=2.8',
-			'pytest-sugar',
+			'pytest-sugar>=0.9.1',
 			'collective.checkdocs',
+			'pytest-flake8',
+
+			# local
 			'six',
 			'backports.unittest_mock',
 			'jaraco.classes',
 		],
 		'docs': [
+			# upstream
 			'sphinx',
 			'jaraco.packaging>=3.2',
 			'rst.linker>=1.9',
+
+			# local
 		],
 		':python_version=="2.7"': [
 			'backports.functools_lru_cache>=1.0.3',
