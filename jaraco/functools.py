@@ -42,7 +42,8 @@ def compose(*funcs):
 	[1.5, 2.0, 2.25, 2.4, 2.5, 2.571, 2.625, 2.667, 2.7]
 	"""
 
-	compose_two = lambda f1, f2: lambda *args, **kwargs: f1(f2(*args, **kwargs))
+	def compose_two(f1, f2):
+		return lambda *args, **kwargs: f1(f2(*args, **kwargs))
 	return functools.reduce(compose_two, funcs)
 
 

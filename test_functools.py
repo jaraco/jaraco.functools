@@ -59,6 +59,7 @@ class TestThrottler(object):
 
 class TestMethodCache:
 	bad_vers = '(3, 5, 0) <= sys.version_info < (3, 5, 2)'
+
 	@pytest.mark.skipif(bad_vers, reason="https://bugs.python.org/issue25447")
 	def test_deepcopy(self):
 		"""
@@ -99,11 +100,11 @@ class TestMethodCache:
 		ob = ClassUnderTest()
 
 		# __getitem__
-		_ = ob[1] + ob[1]
+		ob[1] + ob[1]
 		assert ob.getitem_calls == 1
 
 		# __getattr__
-		_ = ob.one + ob.one
+		ob.one + ob.one
 		assert ob.getattr_calls == 1
 
 	@pytest.mark.xfail(reason="can't replace property with cache; #6")
@@ -207,7 +208,8 @@ class TestRetry:
 	def test_infinite_retries(self):
 		self.set_to_fail(times=999)
 		cleanup = mock.Mock()
-		retry_call(self.attempt, retries=float('inf'), cleanup=cleanup,
+		retry_call(
+			self.attempt, retries=float('inf'), cleanup=cleanup,
 			trap=Exception)
 		assert cleanup.call_count == 999
 
