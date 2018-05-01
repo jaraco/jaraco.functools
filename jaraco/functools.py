@@ -8,6 +8,8 @@ import warnings
 import inspect
 from itertools import count
 
+__metaclass__ = type
+
 
 try:
 	from functools import lru_cache
@@ -226,7 +228,7 @@ def call_aside(f, *args, **kwargs):
 	return f
 
 
-class Throttler(object):
+class Throttler:
 	"""
 	Rate-limit a function (or other callable)
 	"""
