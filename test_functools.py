@@ -10,8 +10,10 @@ from jaraco.classes import properties
 
 from jaraco.functools import Throttler, method_cache, retry_call, retry
 
+__metaclass__ = type
 
-class TestThrottler(object):
+
+class TestThrottler:
 	def test_function_throttled(self):
 		"""
 		Ensure the throttler actually throttles calls.
@@ -48,7 +50,7 @@ class TestThrottler(object):
 		assert wrapped_again.max_rate == 60
 
 	def test_throttled_method(self):
-		class ThrottledMethodClass(object):
+		class ThrottledMethodClass:
 			@Throttler
 			def echo(self, arg):
 				return arg
@@ -83,7 +85,7 @@ class TestMethodCache:
 		"""
 		Test method_cache with __getitem__ and __getattr__.
 		"""
-		class ClassUnderTest(object):
+		class ClassUnderTest:
 			getitem_calls = 0
 			getattr_calls = 0
 
@@ -112,7 +114,7 @@ class TestMethodCache:
 		"""
 		Can a method_cache decorated method also be a property?
 		"""
-		class ClassUnderTest(object):
+		class ClassUnderTest:
 			@property
 			@method_cache
 			def mything(self):
@@ -128,7 +130,7 @@ class TestMethodCache:
 		A non-data property also does not work because the property
 		gets replaced with a method.
 		"""
-		class ClassUnderTest(object):
+		class ClassUnderTest:
 			@properties.NonDataProperty
 			@method_cache
 			def mything(self):
