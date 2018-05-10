@@ -1,3 +1,8 @@
+1.18
+====
+
+Add ``result_invoke`` decorator.
+
 1.17
 ====
 
