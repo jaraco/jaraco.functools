@@ -313,6 +313,15 @@ def retry(*r_args, **r_kwargs):
 	"""
 	Decorator wrapper for retry_call. Accepts arguments to retry_call
 	except func and then returns a decorator for the decorated function.
+
+	Ex:
+
+	>>> @retry(retries=3)
+	... def my_func(a, b):
+	...     "this is my funk"
+	...     print(a, b)
+	>>> my_func.__doc__
+	'this is my funk'
 	"""
 	def decorate(func):
 		@functools.wraps(func)
