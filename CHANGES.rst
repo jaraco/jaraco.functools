@@ -1,3 +1,8 @@
+1.19
+====
+
+Added ``.reset`` support to ``once``.
+
 1.18
 ====
 

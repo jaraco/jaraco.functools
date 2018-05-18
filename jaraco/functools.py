@@ -72,19 +72,36 @@ def once(func):
 	This decorator can ensure that an expensive or non-idempotent function
 	will not be expensive on subsequent calls and is idempotent.
 
-	>>> func = once(lambda a: a+3)
-	>>> func(3)
+	>>> add_three = once(lambda a: a+3)
+	>>> add_three(3)
 	6
-	>>> func(9)
+	>>> add_three(9)
 	6
-	>>> func('12')
+	>>> add_three('12')
 	6
+
+	To reset the stored value, simply clear the property ``saved_result``.
+
+	>>> del add_three.saved_result
+	>>> add_three(9)
+	12
+	>>> add_three(8)
+	12
+
+	Or invoke 'reset()' on it.
+
+	>>> add_three.reset()
+	>>> add_three(-3)
+	0
+	>>> add_three(0)
+	0
 	"""
 	@functools.wraps(func)
 	def wrapper(*args, **kwargs):
-		if not hasattr(func, 'always_returns'):
-			func.always_returns = func(*args, **kwargs)
-		return func.always_returns
+		if not hasattr(wrapper, 'saved_result'):
+			wrapper.saved_result = func(*args, **kwargs)
+		return wrapper.saved_result
+	wrapper.reset = lambda: vars(wrapper).__delitem__('saved_result')
 	return wrapper
 
 
