@@ -390,6 +390,14 @@ def assign_params(func, namespace):
 	>>> assigned = assign_params(func, dict(x=2, z=4))
 	>>> assigned()
 	2 3
+
+	The usual errors are raised if a function doesn't receive
+	its required parameters:
+
+	>>> assigned = assign_params(func, dict(y=3, z=4))
+	>>> assigned()
+	Traceback (most recent call last):
+	TypeError: func() missing 1 required positional argument: 'x'
 	"""
 	try:
 		sig = inspect.signature(func)
