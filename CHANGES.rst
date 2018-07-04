@@ -1,3 +1,8 @@
+1.20
+====
+
+Added ``save_method_args``, adopted from ``irc.functools``.
+
 1.19
 ====
 
