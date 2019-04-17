@@ -7,6 +7,7 @@ import time
 import warnings
 import inspect
 import collections
+import types
 from itertools import count
 
 __metaclass__ = type
@@ -172,7 +173,7 @@ def method_cache(method, cache_wrapper=None):
 
 	def wrapper(self, *args, **kwargs):
 		# it's the first call, replace the method with a cached, bound method
-		bound_method = functools.partial(method, self)
+		bound_method = types.MethodType(method, self)
 		cached_method = cache_wrapper(bound_method)
 		setattr(self, method.__name__, cached_method)
 		return cached_method(*args, **kwargs)
