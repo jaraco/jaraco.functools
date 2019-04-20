@@ -128,8 +128,9 @@ def method_cache(method, cache_wrapper=None):
 	3
 	>>> for x in range(75):
 	...     res = a.method(x)
-	>>> a.calls
-	75
+	>>> has_issue_12 = __import__('sys').version_info[:3] == (3, 7, 3)
+	>>> a.calls == 75 + has_issue_12
+	True
 
 	Note that the apparent behavior will be exactly like that of lru_cache
 	except that the cache is stored on each instance, so values in one
@@ -143,8 +144,8 @@ def method_cache(method, cache_wrapper=None):
 	35
 	>>> a.method(0)
 	0
-	>>> a.calls
-	75
+	>>> a.calls == 75 + has_issue_12
+	True
 
 	Note that if method had been decorated with ``functools.lru_cache()``,
 	a.calls would have been 76 (due to the cached value of 0 having been
