@@ -201,7 +201,7 @@ def _special_method_cache(method, cache_wrapper):
 
 	def proxy(self, *args, **kwargs):
 		if wrapper_name not in vars(self):
-			bound = functools.partial(method, self)
+			bound = types.MethodType(method, self)
 			cache = cache_wrapper(bound)
 			setattr(self, wrapper_name, cache)
 		else:
