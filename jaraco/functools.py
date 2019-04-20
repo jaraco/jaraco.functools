@@ -200,12 +200,8 @@ def _special_method_cache(method, cache_wrapper):
 	wrapper_name = '__cached' + name
 
 	def proxy(self, *args, **kwargs):
-		if wrapper_name not in vars(self):
-			bound = types.MethodType(method, self)
-			cache = cache_wrapper(bound)
-			setattr(self, wrapper_name, cache)
-		else:
-			cache = getattr(self, wrapper_name)
+		bound = types.MethodType(method, self)
+		cache = vars(self).setdefault(wrapper_name, cache_wrapper(bound))
 		return cache(*args, **kwargs)
 
 	return proxy
