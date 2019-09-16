@@ -6,6 +6,11 @@
 .. image:: https://img.shields.io/travis/jaraco/jaraco.functools/master.svg
    :target: https://travis-ci.org/jaraco/jaraco.functools
 
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
+   :alt: Code style: Black
+
 .. .. image:: https://img.shields.io/appveyor/ci/jaraco/jaraco-functools/master.svg
 ..    :target: https://ci.appveyor.com/project/jaraco-functools/skeleton/branch/master
 
