@@ -10,8 +10,6 @@ from jaraco.classes import properties
 
 from jaraco.functools import Throttler, method_cache, retry_call, retry
 
-__metaclass__ = type
-
 
 class TestThrottler:
     def test_function_throttled(self):

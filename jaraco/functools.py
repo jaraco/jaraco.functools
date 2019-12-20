@@ -1,27 +1,9 @@
-from __future__ import absolute_import, unicode_literals, print_function, division
-
 import functools
 import time
-import warnings
 import inspect
 import collections
 import types
-from itertools import count
-
-__metaclass__ = type
-
-
-try:
-    from functools import lru_cache
-except ImportError:
-    try:
-        from backports.functools_lru_cache import lru_cache
-    except ImportError:
-        try:
-            from functools32 import lru_cache
-        except ImportError:
-            warnings.warn("No lru_cache available")
-
+import itertools
 
 import more_itertools.recipes
 
@@ -159,7 +141,7 @@ def method_cache(method, cache_wrapper=None):
 
     Another cache wrapper may be supplied:
 
-    >>> cache = lru_cache(maxsize=2)
+    >>> cache = functools.lru_cache(maxsize=2)
     >>> MyClass.method2 = method_cache(lambda self: 3, cache_wrapper=cache)
     >>> a = MyClass()
     >>> a.method2()
@@ -172,7 +154,7 @@ def method_cache(method, cache_wrapper=None):
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    cache_wrapper = cache_wrapper or lru_cache()
+    cache_wrapper = cache_wrapper or functools.lru_cache()
 
     def wrapper(self, *args, **kwargs):
         # it's the first call, replace the method with a cached, bound method
@@ -329,7 +311,7 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
     exception. On the final attempt, allow any exceptions
     to propagate.
     """
-    attempts = count() if retries == float('inf') else range(retries)
+    attempts = itertools.count() if retries == float('inf') else range(retries)
     for attempt in attempts:
         try:
             return func()
@@ -425,12 +407,8 @@ def assign_params(func, namespace):
     >>> assign_params(Handler().meth, dict(arg='crystal', foo='clear'))()
     crystal
     """
-    try:
-        sig = inspect.signature(func)
-        params = sig.parameters.keys()
-    except AttributeError:
-        spec = inspect.getargspec(func)
-        params = spec.args
+    sig = inspect.signature(func)
+    params = sig.parameters.keys()
     call_ns = {k: namespace[k] for k in params if k in namespace}
     return functools.partial(func, **call_ns)
 

@@ -8,7 +8,7 @@ def pytest_configure():
     patch_for_issue_12()
 
 
-def patch_for_issue_12():
+def patch_for_issue_12():  # pragma: nocover
     """
     Issue #12 revealed that Python 3.7.3 had a subtle
     change in the C implementation of functools that
