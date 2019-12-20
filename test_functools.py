@@ -118,7 +118,7 @@ class TestMethodCache:
         class ClassUnderTest:
             @property
             @method_cache
-            def mything(self):
+            def mything(self):  # pragma: nocover
                 return random.random()
 
         ob = ClassUnderTest()
