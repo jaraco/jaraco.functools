@@ -5,7 +5,7 @@ import collections
 import types
 import itertools
 
-import more_itertools.recipes
+import more_itertools
 
 
 def compose(*funcs):
@@ -359,7 +359,7 @@ def print_yielded(func):
     None
     """
     print_all = functools.partial(map, print)
-    print_results = compose(more_itertools.recipes.consume, print_all, func)
+    print_results = compose(more_itertools.consume, print_all, func)
     return functools.wraps(func)(print_results)
 
 
