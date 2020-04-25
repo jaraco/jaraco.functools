@@ -8,10 +8,24 @@ from unittest import mock
 import pytest
 from jaraco.classes import properties
 
+import jaraco.functools
 from jaraco.functools import Throttler, method_cache, retry_call, retry
 
 
 class TestThrottler:
+    @staticmethod
+    @jaraco.functools.once
+    def baseline():
+        """
+        Return the max calls in a tight loop for one second.
+        """
+        counter = itertools.count()
+        deadline = time.time() + 1
+        while time.time() < deadline:
+            next(counter)
+            time.sleep(.000001)
+        return min(next(counter), 28)
+
     def test_function_throttled(self):
         """
         Ensure the throttler actually throttles calls.
@@ -25,7 +39,7 @@ class TestThrottler:
         while time.time() < deadline:
             limited_next(counter)
         # ensure the counter was advanced about 30 times
-        assert 28 <= next(counter) <= 32
+        assert self.baseline() <= next(counter) <= 32
 
         # ensure that another burst of calls after some idle period will also
         # get throttled
@@ -34,7 +48,7 @@ class TestThrottler:
         counter = itertools.count()
         while time.time() < deadline:
             limited_next(counter)
-        assert 28 <= next(counter) <= 32
+        assert self.baseline() <= next(counter) <= 32
 
     def test_reconstruct_unwraps(self):
         """
