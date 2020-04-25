@@ -1,3 +1,8 @@
+v3.0.1
+======
+
+#14: Removed unnecessary compatibility libraries in testing.
+
 v3.0.0
 ======
 
