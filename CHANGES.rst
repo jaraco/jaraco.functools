@@ -1,3 +1,8 @@
+v3.1.0
+======
+
+Added ``except_`` decorator.
+
 v3.0.1
 ======
 
