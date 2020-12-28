@@ -4,6 +4,7 @@ import time
 import copy
 import random
 import functools
+import platform
 from unittest import mock
 
 import pytest
@@ -14,8 +15,8 @@ from jaraco.functools import Throttler, method_cache, retry_call, retry
 
 class TestThrottler:
     @pytest.mark.xfail(
-        os.environ.get('AGENT_OS', '') in ('Windows_NT', 'Darwin'),
-        reason="Performance is heavily throttled on Azure Win/Mac runs",
+        os.environ.get('GITHUB_ACTIONS') and platform.system() == 'Darwin',
+        reason="Performance is heavily throttled on Github Actions Mac runs",
     )
     def test_function_throttled(self):
         """
