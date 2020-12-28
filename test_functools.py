@@ -15,7 +15,8 @@ from jaraco.functools import Throttler, method_cache, retry_call, retry
 
 class TestThrottler:
     @pytest.mark.xfail(
-        os.environ.get('GITHUB_ACTIONS') and platform.system() == 'Darwin',
+        os.environ.get('GITHUB_ACTIONS')
+        and platform.system() == 'Darwin',  # type: ignore
         reason="Performance is heavily throttled on Github Actions Mac runs",
     )
     def test_function_throttled(self):
