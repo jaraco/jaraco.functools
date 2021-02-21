@@ -1,3 +1,8 @@
+v3.2.1
+======
+
+Refreshed package metadata.
+
 v3.2.0
 ======
 
