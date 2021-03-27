@@ -1,3 +1,9 @@
+v3.3.0
+======
+
+#18: In method_cache, support cache_clear before cache
+is initialized.
+
 v3.2.1
 ======
 
