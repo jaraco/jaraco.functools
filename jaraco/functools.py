@@ -234,6 +234,8 @@ def result_invoke(action):
     ...     return a + b
     >>> x = add_two(2, 3)
     5
+    >>> x
+    5
     """
 
     def wrap(func):
