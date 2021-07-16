@@ -13,8 +13,9 @@ def compose(*funcs):
     Compose any number of unary functions into a single unary function.
 
     >>> import textwrap
-    >>> stripped = str.strip(textwrap.dedent(compose.__doc__))
-    >>> compose(str.strip, textwrap.dedent)(compose.__doc__) == stripped
+    >>> expected = str.strip(textwrap.dedent(compose.__doc__))
+    >>> strip_and_dedent = compose(str.strip, textwrap.dedent)
+    >>> strip_and_dedent(compose.__doc__) == expected
     True
 
     Compose also allows the innermost function to take arbitrary arguments.
