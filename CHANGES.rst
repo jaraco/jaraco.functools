@@ -1,3 +1,9 @@
+v3.4.0
+======
+
+``apply`` now uses ``functools.wraps`` to ensure docstring
+passthrough.
+
 v3.3.0
 ======
 

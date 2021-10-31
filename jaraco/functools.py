@@ -211,13 +211,16 @@ def apply(transform):
 
     >>> @apply(reversed)
     ... def get_numbers(start):
+    ...     "doc for get_numbers"
     ...     return range(start, start+3)
     >>> list(get_numbers(4))
     [6, 5, 4]
+    >>> get_numbers.__doc__
+    'doc for get_numbers'
     """
 
     def wrap(func):
-        return compose(transform, func)
+        return functools.wraps(func)(compose(transform, func))
 
     return wrap
 
