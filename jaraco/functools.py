@@ -7,6 +7,11 @@ import itertools
 
 import more_itertools
 
+from typing import Callable, TypeVar
+
+
+CallableT = TypeVar("CallableT", bound=Callable[..., object])
+
 
 def compose(*funcs):
     """
@@ -92,7 +97,12 @@ def once(func):
     return wrapper
 
 
-def method_cache(method, cache_wrapper=functools.lru_cache()):
+def method_cache(
+    method: CallableT,
+    cache_wrapper: Callable[
+        [CallableT], CallableT
+    ] = functools.lru_cache(),  # type: ignore[assignment]
+) -> CallableT:
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -160,17 +170,21 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     for another implementation and additional justification.
     """
 
-    def wrapper(self, *args, **kwargs):
+    def wrapper(self: object, *args: object, **kwargs: object) -> object:
         # it's the first call, replace the method with a cached, bound method
-        bound_method = types.MethodType(method, self)
+        bound_method: CallableT = types.MethodType(  # type: ignore[assignment]
+            method, self
+        )
         cached_method = cache_wrapper(bound_method)
         setattr(self, method.__name__, cached_method)
         return cached_method(*args, **kwargs)
 
     # Support cache clear even before cache has been created.
-    wrapper.cache_clear = lambda: None
+    wrapper.cache_clear = lambda: None  # type: ignore[attr-defined]
 
-    return _special_method_cache(method, cache_wrapper) or wrapper
+    return (  # type: ignore[return-value]
+        _special_method_cache(method, cache_wrapper) or wrapper
+    )
 
 
 def _special_method_cache(method, cache_wrapper):
