@@ -10,8 +10,9 @@ skip-string-normalization = true
 [pytest.enabler.black]
 addopts = "--black"
 
-[pytest.enabler.mypy]
-addopts = "--mypy"
+# disabled for pytest-dev/pytest#8332 (see #19)
+# [pytest.enabler.mypy]
+# addopts = "--mypy"
 
 [pytest.enabler.flake8]
 addopts = "--flake8"
