@@ -92,7 +92,7 @@ def once(func):
     return wrapper
 
 
-def method_cache(method, cache_wrapper=None):
+def method_cache(method, cache_wrapper=functools.lru_cache()):
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -159,7 +159,6 @@ def method_cache(method, cache_wrapper=None):
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    cache_wrapper = cache_wrapper or functools.lru_cache()
 
     def wrapper(self, *args, **kwargs):
         # it's the first call, replace the method with a cached, bound method
