@@ -1,7 +1,8 @@
 v3.5.0
 ======
 
-Add type annotations to ``method_cache``.
+* #19: Add type annotations to ``method_cache``.
+* Require Python 3.7.
 
 v3.4.0
 ======
