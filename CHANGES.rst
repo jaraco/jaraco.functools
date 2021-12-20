@@ -1,3 +1,8 @@
+v3.5.0
+======
+
+Add type annotations to ``method_cache``.
+
 v3.4.0
 ======
 
