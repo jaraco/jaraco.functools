@@ -19,7 +19,7 @@
 .. image:: https://readthedocs.org/projects/jaracofunctools/badge/?version=latest
    :target: https://jaracofunctools.readthedocs.io/en/latest/?badge=latest
 
-.. image:: https://img.shields.io/badge/skeleton-2021-informational
+.. image:: https://img.shields.io/badge/skeleton-2022-informational
    :target: https://blog.jaraco.com/skeleton
 
 Additional functools in the spirit of stdlib's functools.
