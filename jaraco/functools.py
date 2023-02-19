@@ -4,6 +4,7 @@ import inspect
 import collections
 import types
 import itertools
+import warnings
 
 import more_itertools
 
@@ -266,7 +267,7 @@ def result_invoke(action):
     return wrap
 
 
-def call_aside(f, *args, **kwargs):
+def invoke(f, *args, **kwargs):
     """
     Call a function for its side effect after initialization.
 
@@ -290,10 +291,9 @@ def call_aside(f, *args, **kwargs):
     primarily for its side effect", or "while defining this function, also
     take it aside and call it". It exists because there's no Python construct
     for "define and call" (nor should there be, as decorators serve this need
-    just fine). "aside" does not mean to suggest "asynchronously"; the
-    behavior happens immediately and synchronously.
+    just fine). The behavior happens immediately and synchronously.
 
-    >>> @call_aside
+    >>> @invoke
     ... def func(): print("called")
     called
     >>> func()
@@ -301,12 +301,20 @@ def call_aside(f, *args, **kwargs):
 
     Use functools.partial to pass parameters to the initial call
 
-    >>> @functools.partial(call_aside, name='bingo')
+    >>> @functools.partial(invoke, name='bingo')
     ... def func(name): print("called with", name)
     called with bingo
     """
     f(*args, **kwargs)
     return f
+
+
+def call_aside(*args, **kwargs):
+    """
+    Deprecated name for invoke.
+    """
+    warnings.warn("call_aside is deprecated, use invoke", DeprecationWarning)
+    return invoke(*args, **kwargs)
 
 
 class Throttler:

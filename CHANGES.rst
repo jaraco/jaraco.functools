@@ -1,3 +1,8 @@
+v3.6.0
+======
+
+#21: Renamed ``call_aside`` to ``invoke``, deprecating ``call_aside``.
+
 v3.5.2
 ======
 
