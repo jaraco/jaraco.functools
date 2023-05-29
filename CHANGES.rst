@@ -1,7 +1,7 @@
 v3.7.0
 ======
 
-Added ``pass_through_when``.
+Added ``bypass_unless``.
 
 v3.6.0
 ======
