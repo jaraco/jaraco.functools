@@ -1,3 +1,8 @@
+v3.7.0
+======
+
+Added ``pass_through_when``.
+
 v3.6.0
 ======
 

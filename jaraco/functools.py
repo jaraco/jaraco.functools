@@ -554,3 +554,29 @@ def except_(*exceptions, replace=None, use=None):
         return wrapper
 
     return decorate
+
+
+def pass_through_when(check):
+    """
+    Decorate a function to return its parameter when ``check()``.
+
+    >>> pass_through = True
+
+    >>> @pass_through_when(lambda: pass_through)
+    ... def double(x):
+    ...     return x * 2
+    >>> double(2)
+    2
+    >>> pass_through = False
+    >>> double(2)
+    4
+    """
+
+    def decorate(func):
+        @functools.wraps(func)
+        def wrapper(param):
+            return param if check() else func(param)
+
+        return wrapper
+
+    return decorate
