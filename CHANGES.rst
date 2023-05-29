@@ -1,7 +1,7 @@
 v3.7.0
 ======
 
-Added ``bypass_unless``.
+Added ``bypass_unless`` and ``bypass_when`` and ``identity``.
 
 v3.6.0
 ======
