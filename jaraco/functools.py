@@ -27,13 +27,14 @@ if sys.version_info <= (3, 10):
 else:
     from typing import Concatenate, ParamSpec
 
+_DEFAULT_CACHE_WRAPPER = functools.lru_cache()
 P = ParamSpec('P')  # Parameters.
-T = TypeVar('T')  # A type.
+R = TypeVar('R')  # Return type.
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Hashable
 
-    R = TypeVar('R')  # Return type.
+    T = TypeVar('T')  # A type.
     R1 = TypeVar('R1')  # In-between result type 1. For `compose()` overloads.
     R2 = TypeVar('R2')  # In-between result type 2. For `compose()` overloads.
     V = TypeVar('V')  # Used when T is taken.
@@ -122,7 +123,7 @@ def compose(
     return functools.reduce(compose_two, funcs)
 
 
-def once(func: Callable[P, T]) -> _OnceCallable[P, T]:
+def once(func: Callable[P, R]) -> _OnceCallable[P, R]:
     """Decorate func so it's only ever called the first time.
 
     This decorator can ensure that an expensive or non-idempotent function
@@ -153,11 +154,11 @@ def once(func: Callable[P, T]) -> _OnceCallable[P, T]:
     0
     """
     if TYPE_CHECKING:
-        wrapper = cast(_OnceCallable[P, T], func)
+        wrapper = cast(_OnceCallable[P, R], func)
     else:
 
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
             if not hasattr(wrapper, 'saved_result'):
                 wrapper.saved_result = func(*args, **kwargs)
             return wrapper.saved_result
@@ -166,15 +167,12 @@ def once(func: Callable[P, T]) -> _OnceCallable[P, T]:
     return wrapper
 
 
-_DEFAULT_CACHE_WRAPPER = functools.lru_cache()
-
-
 def method_cache(
-    method: Callable[..., T],
+    method: Callable[..., R],
     cache_wrapper: Callable[
-        [Callable[..., T]], _MethodCacheWrapper[T],
+        [Callable[..., R]], _MethodCacheWrapper[R],
     ] = _DEFAULT_CACHE_WRAPPER,
-) -> _MethodCacheWrapper[T] | _ProxyMethodCacheWrapper[T]:
+) -> _MethodCacheWrapper[R] | _ProxyMethodCacheWrapper[R]:
     """Wrap lru_cache to support storing the cache data in the object instances.
 
     Abstracts the common paradigm where the method explicitly saves an
@@ -242,7 +240,7 @@ def method_cache(
     for another implementation and additional justification.
     """
     if TYPE_CHECKING:
-        wrapper = cast(_ProxyMethodCacheWrapper[T], method)
+        wrapper = cast(_ProxyMethodCacheWrapper[R], method)
 
     else:
 
@@ -346,7 +344,7 @@ def result_invoke(
     return wrap
 
 
-def invoke(f: Callable[P, T], /, *args: P.args, **kwargs: P.kwargs) -> Callable[P, T]:
+def invoke(f: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Callable[P, R]:
     """Call a function for its side effect after initialization.
 
     The benefit of using the decorator instead of simply invoking a function
@@ -387,7 +385,7 @@ def invoke(f: Callable[P, T], /, *args: P.args, **kwargs: P.kwargs) -> Callable[
     return f
 
 
-def call_aside(f: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> Callable[P, T]:
+def call_aside(f: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> Callable[P, R]:
     """Deprecated name for invoke."""
     warnings.warn(
         '`jaraco.functools.call_aside` is deprecated, '
@@ -401,15 +399,15 @@ def call_aside(f: Callable[P, T], *args: P.args, **kwargs: P.kwargs) -> Callable
 # We can't use P for parameters because of Throttler's descriptor behavior.
 
 
-class Throttler(Generic[T]):
+class Throttler(Generic[R]):
     """Rate-limit a function (or other callable)."""
 
     last_called: float
-    func: Callable[..., T]
+    func: Callable[..., R]
 
     def __init__(
         self,
-        func: Callable[..., T] | Throttler[T],
+        func: Callable[..., R] | Throttler[R],
         max_rate: SupportsFloat = float('Inf'),
     ) -> None:
         if isinstance(func, Throttler):
@@ -421,7 +419,7 @@ class Throttler(Generic[T]):
     def reset(self) -> None:
         self.last_called = 0.0
 
-    def __call__(self, *args: Any, **kwargs: Any) -> T:
+    def __call__(self, *args: Any, **kwargs: Any) -> R:
         self._wait()
         return self.func(*args, **kwargs)
 
@@ -432,17 +430,17 @@ class Throttler(Generic[T]):
         time.sleep(max(0.0, must_wait))
         self.last_called = time.time()
 
-    def __get__(self, obj: Any, owner: type[Any] | None = None) -> Callable[..., T]:
+    def __get__(self, obj: Any, owner: type[Any] | None = None) -> Callable[..., R]:
         return first_invoke(self._wait, functools.partial(self.func, obj))
 
 
-def first_invoke(func1: Callable[..., Any], func2: Callable[P, T]) -> Callable[P, T]:
+def first_invoke(func1: Callable[..., Any], func2: Callable[P, R]) -> Callable[P, R]:
     """Return a function that when invoked will invoke func1 without
     any parameters (for its side effect) and then invoke func2
     with whatever parameters were passed, returning its result.
     """
 
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
+    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
         func1()
         return func2(*args, **kwargs)
 
@@ -461,11 +459,11 @@ method_caller = first_invoke(
 
 
 def retry_call(
-    func: Callable[..., T],
+    func: Callable[..., R],
     cleanup: Callable[..., None] = lambda: None,
     retries: int | float = 0,
     trap: type[BaseException] | tuple[type[BaseException], ...] = (),
-) -> T:
+) -> R:
     """Given a callable func, trap the indicated exceptions
     for up to 'retries' times, invoking cleanup on the
     exception. On the final attempt, allow any exceptions
@@ -487,7 +485,7 @@ def retry(
     cleanup: Callable[..., None] = lambda: None,
     retries: int | float = 0,
     trap: type[BaseException] | tuple[type[BaseException], ...] = (),
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorator wrapper for retry_call. Accepts arguments to retry_call
     except func and then returns a decorator for the decorated function.
 
@@ -501,9 +499,9 @@ def retry(
     'this is my funk'
     """
 
-    def decorate(func: Callable[..., T]) -> Callable[..., T]:
+    def decorate(func: Callable[..., R]) -> Callable[..., R]:
         @functools.wraps(func)
-        def wrapper(*f_args: Any, **f_kwargs: Any) -> T:
+        def wrapper(*f_args: Any, **f_kwargs: Any) -> R:
             bound = functools.partial(func, *f_args, **f_kwargs)
             return retry_call(bound, cleanup=cleanup, retries=retries, trap=trap)
 
@@ -550,8 +548,8 @@ def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P
 
 
 def assign_params(
-    func: Callable[..., T], namespace: dict[str, Any],
-) -> functools.partial[T]:
+    func: Callable[..., R], namespace: dict[str, Any],
+) -> functools.partial[R]:
     """Assign parameters from namespace where func solicits.
 
     >>> def func(x, y=3):
@@ -583,8 +581,8 @@ def assign_params(
 
 
 def save_method_args(
-    method: Callable[Concatenate[S, P], T],
-) -> Callable[Concatenate[S, P], T]:
+    method: Callable[Concatenate[S, P], R],
+) -> Callable[Concatenate[S, P], R]:
     """Wrap a method such that when it is called, the args and kwargs are
     saved on the method.
 
@@ -620,7 +618,7 @@ def save_method_args(
     args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')
 
     @functools.wraps(method)
-    def wrapper(self: S, /, *args: P.args, **kwargs: P.kwargs) -> T:
+    def wrapper(self: S, /, *args: P.args, **kwargs: P.kwargs) -> R:
         attr_name = '_saved_' + method.__name__
         attr = args_and_kwargs(args, kwargs)
         setattr(self, attr_name, attr)
