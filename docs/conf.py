@@ -32,7 +32,8 @@ link_files = {
 nitpicky = True
 
 nitpick_ignore = [
-    ('py:class', 'jaraco.functools.CallableT'),
+    ('py:class', 'jaraco.functools.T'),
+    ('py:class', 'jaraco.functools.P'),
 ]
 
 # Include Python intersphinx mapping to prevent failures
