@@ -184,8 +184,9 @@ def method_cache(
     # Support cache clear even before cache has been created.
     wrapper.cache_clear = lambda: None  # type: ignore[attr-defined]
 
-    return (  # type: ignore[return-value]
-        _special_method_cache(method, cache_wrapper) or wrapper
+    return (
+        _special_method_cache(method, cache_wrapper)  # type: ignore[return-value]
+        or wrapper
     )
 
 
