@@ -6,7 +6,3 @@ build-backend = "setuptools.build_meta"
 skip-string-normalization = true
 
 [tool.setuptools_scm]
-
-# disabled for pytest-dev/pytest#8332 (see #19)
-[tool.pytest-enabler.mypy]
-

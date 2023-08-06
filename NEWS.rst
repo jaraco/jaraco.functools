@@ -1,3 +1,12 @@
+v3.8.1
+======
+
+Bugfixes
+--------
+
+- Restored type checking and repaired broken exclusion. (#50550895)
+
+
 v3.8.0
 ======
 
