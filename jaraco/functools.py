@@ -41,7 +41,6 @@ if TYPE_CHECKING:
     S = TypeVar('S')  # Used as Self.
     R_co = TypeVar('R_co', covariant=True)  # For protocols. We want their R covariant.
 
-
     class _OnceCallable(Protocol[P, R]):
         saved_result: R
         reset: Callable[[], None]
@@ -49,13 +48,11 @@ if TYPE_CHECKING:
         def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
             ...
 
-
     class _ProxyMethodCacheWrapper(Protocol[R_co]):
         cache_clear: Callable[[], None]
 
         def __call__(self, *args: Hashable, **kwargs: Hashable) -> R_co:
             ...
-
 
     class _MethodCacheWrapper(Protocol[R_co]):
         def cache_clear(self) -> None:
@@ -170,7 +167,8 @@ def once(func: Callable[P, R]) -> _OnceCallable[P, R]:
 def method_cache(
     method: Callable[..., R],
     cache_wrapper: Callable[
-        [Callable[..., R]], _MethodCacheWrapper[R],
+        [Callable[..., R]],
+        _MethodCacheWrapper[R],
     ] = _DEFAULT_CACHE_WRAPPER,
 ) -> _MethodCacheWrapper[R] | _ProxyMethodCacheWrapper[R]:
     """Wrap lru_cache to support storing the cache data in the object instances.
@@ -548,7 +546,8 @@ def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P
 
 
 def assign_params(
-    func: Callable[..., R], namespace: dict[str, Any],
+    func: Callable[..., R],
+    namespace: dict[str, Any],
 ) -> functools.partial[R]:
     """Assign parameters from namespace where func solicits.
 
@@ -628,7 +627,9 @@ def save_method_args(
 
 
 def except_(
-    *exceptions: type[BaseException], replace: Any = None, use: Any = None,
+    *exceptions: type[BaseException],
+    replace: Any = None,
+    use: Any = None,
 ) -> Callable[[Callable[P, Any]], Callable[P, Any]]:
     """Replace the indicated exceptions, if raised, with the indicated
     literal replacement or evaluated expression (if present).
@@ -679,7 +680,9 @@ def identity(x: T) -> T:
 
 
 def bypass_when(
-    check: V, *, _op: Callable[[V], Any] = identity,
+    check: V,
+    *,
+    _op: Callable[[V], Any] = identity,
 ) -> Callable[[Callable[[T], R]], Callable[[T], T | R]]:
     """Decorate a function to return its parameter when ``check``.
 
