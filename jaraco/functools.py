@@ -98,7 +98,8 @@ def compose(
 def compose(
     *funcs: Callable[..., Any],
 ) -> Callable[..., Any]:
-    """Compose any number of unary functions into a single unary function.
+    """
+    Compose any number of unary functions into a single unary function.
 
     >>> import textwrap
     >>> expected = str.strip(textwrap.dedent(compose.__doc__))
@@ -121,7 +122,8 @@ def compose(
 
 
 def once(func: Callable[P, R]) -> _OnceCallable[P, R]:
-    """Decorate func so it's only ever called the first time.
+    """
+    Decorate func so it's only ever called the first time.
 
     This decorator can ensure that an expensive or non-idempotent function
     will not be expensive on subsequent calls and is idempotent.
@@ -171,7 +173,8 @@ def method_cache(
         _MethodCacheWrapper[R],
     ] = _DEFAULT_CACHE_WRAPPER,
 ) -> _MethodCacheWrapper[R] | _ProxyMethodCacheWrapper[R]:
-    """Wrap lru_cache to support storing the cache data in the object instances.
+    """
+    Wrap lru_cache to support storing the cache data in the object instances.
 
     Abstracts the common paradigm where the method explicitly saves an
     underscore-prefixed protected property on first call and returns that
@@ -259,7 +262,8 @@ def _special_method_cache(
     method: Callable[..., T],
     cache_wrapper: Callable[[Callable[..., T]], _MethodCacheWrapper[T]],
 ) -> _MethodCacheWrapper[T] | None:
-    """Because Python treats special methods differently, it's not
+    """
+    Because Python treats special methods differently, it's not
     possible to use instance attributes to implement the cached
     methods.
 
@@ -294,7 +298,8 @@ def _special_method_cache(
 
 
 def apply(transform: Callable[[R], T]) -> Callable[[Callable[P, R]], Callable[P, T]]:
-    """Decorate a function with a transform function that is
+    """
+    Decorate a function with a transform function that is
     invoked on results returned from the decorated function.
 
     >>> @apply(reversed)
@@ -316,7 +321,8 @@ def apply(transform: Callable[[R], T]) -> Callable[[Callable[P, R]], Callable[P,
 def result_invoke(
     action: Callable[[R], Any],
 ) -> Callable[[Callable[P, R]], Callable[P, R]]:
-    r"""Decorate a function with an action function that is
+    r"""
+    Decorate a function with an action function that is
     invoked on the results returned from the decorated
     function (for its side effect), then return the original
     result.
@@ -343,7 +349,8 @@ def result_invoke(
 
 
 def invoke(f: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Callable[P, R]:
-    """Call a function for its side effect after initialization.
+    """
+    Call a function for its side effect after initialization.
 
     The benefit of using the decorator instead of simply invoking a function
     after defining it is that it makes explicit the author's intent for the
@@ -433,7 +440,8 @@ class Throttler(Generic[R]):
 
 
 def first_invoke(func1: Callable[..., Any], func2: Callable[P, R]) -> Callable[P, R]:
-    """Return a function that when invoked will invoke func1 without
+    """
+    Return a function that when invoked will invoke func1 without
     any parameters (for its side effect) and then invoke func2
     with whatever parameters were passed, returning its result.
     """
@@ -462,7 +470,8 @@ def retry_call(
     retries: int | float = 0,
     trap: type[BaseException] | tuple[type[BaseException], ...] = (),
 ) -> R:
-    """Given a callable func, trap the indicated exceptions
+    """
+    Given a callable func, trap the indicated exceptions
     for up to 'retries' times, invoking cleanup on the
     exception. On the final attempt, allow any exceptions
     to propagate.
@@ -484,7 +493,8 @@ def retry(
     retries: int | float = 0,
     trap: type[BaseException] | tuple[type[BaseException], ...] = (),
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
-    """Decorator wrapper for retry_call. Accepts arguments to retry_call
+    """
+    Decorator wrapper for retry_call. Accepts arguments to retry_call
     except func and then returns a decorator for the decorated function.
 
     Ex:
@@ -511,7 +521,8 @@ def retry(
 def print_yielded(
     func: Callable[P, collections.abc.Iterator[Any]]
 ) -> Callable[P, None]:
-    """Convert a generator into a function that prints all yielded elements.
+    """
+    Convert a generator into a function that prints all yielded elements.
 
     >>> @print_yielded
     ... def x():
@@ -528,7 +539,8 @@ def print_yielded(
 # TODO: Overload this as soon as https://github.com/python/mypy/issues/8881 is fixed
 # When T is None (Literal[None]), R becomes None too. Beware!
 def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P], R]:
-    """Wrap func so it's not called if its first param is None.
+    """
+    Wrap func so it's not called if its first param is None.
 
     >>> print_text = pass_none(print)
     >>> print_text('text')
@@ -549,7 +561,8 @@ def assign_params(
     func: Callable[..., R],
     namespace: dict[str, Any],
 ) -> functools.partial[R]:
-    """Assign parameters from namespace where func solicits.
+    """
+    Assign parameters from namespace where func solicits.
 
     >>> def func(x, y=3):
     ...     print(x, y)
@@ -582,7 +595,8 @@ def assign_params(
 def save_method_args(
     method: Callable[Concatenate[S, P], R],
 ) -> Callable[Concatenate[S, P], R]:
-    """Wrap a method such that when it is called, the args and kwargs are
+    """
+    Wrap a method such that when it is called, the args and kwargs are
     saved on the method.
 
     >>> class MyClass:
@@ -631,7 +645,8 @@ def except_(
     replace: Any = None,
     use: Any = None,
 ) -> Callable[[Callable[P, Any]], Callable[P, Any]]:
-    """Replace the indicated exceptions, if raised, with the indicated
+    """
+    Replace the indicated exceptions, if raised, with the indicated
     literal replacement or evaluated expression (if present).
 
     >>> safe_int = except_(ValueError)(int)
@@ -670,7 +685,8 @@ def except_(
 
 
 def identity(x: T) -> T:
-    """Return the argument.
+    """
+    Return the argument.
 
     >>> o = object()
     >>> identity(o) is o
@@ -684,7 +700,8 @@ def bypass_when(
     *,
     _op: Callable[[V], Any] = identity,
 ) -> Callable[[Callable[[T], R]], Callable[[T], T | R]]:
-    """Decorate a function to return its parameter when ``check``.
+    """
+    Decorate a function to return its parameter when ``check``.
 
     >>> bypassed = []  # False
 
@@ -709,7 +726,8 @@ def bypass_when(
 
 
 def bypass_unless(check: V) -> Callable[[Callable[[T], R]], Callable[[T], T | R]]:
-    """Decorate a function to return its parameter unless ``check``.
+    """
+    Decorate a function to return its parameter unless ``check``.
 
     >>> enabled = [object()]  # True
 
