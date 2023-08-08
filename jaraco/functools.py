@@ -39,7 +39,8 @@ if TYPE_CHECKING:
     R2 = TypeVar('R2')  # In-between result type 2. For `compose()` overloads.
     V = TypeVar('V')  # Used when T is taken.
     S = TypeVar('S')  # Used as Self.
-    R_co = TypeVar('R_co', covariant=True)  # For protocols. We want their R covariant.
+    # Covariant version of R for protocols.
+    R_co = TypeVar('R_co', covariant=True)
 
     class _OnceCallable(Protocol[P, R]):
         saved_result: R
@@ -62,7 +63,7 @@ if TYPE_CHECKING:
             ...
 
 
-# `compose()` overloads below will cover the most use cases.
+# `compose()` overloads below will cover most use cases.
 
 
 @overload
@@ -235,7 +236,7 @@ def method_cache(
     Caution - do not subsequently wrap the method with another decorator, such
     as ``@property``, which changes the semantics of the function.
 
-    See Also
+    See also
     --------
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
@@ -401,13 +402,12 @@ def call_aside(f: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> Callable
     return invoke(f, *args, **kwargs)
 
 
-# We can't use P for parameters because of Throttler's descriptor behavior.
-
-
 class Throttler(Generic[R]):
     """Rate-limit a function (or other callable)."""
 
     last_called: float
+    
+    # P for parameters is unusable because of Throttler's descriptor behavior.
     func: Callable[..., R]
 
     def __init__(
@@ -536,7 +536,8 @@ def print_yielded(
     return functools.wraps(func)(print_results)
 
 
-# TODO: Overload this as soon as https://github.com/python/mypy/issues/8881 is fixed
+# TODO: Overload this as soon as
+# https://github.com/python/mypy/issues/8881 is fixed.
 # When T is None (Literal[None]), R becomes None too. Beware!
 def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P], R]:
     """
