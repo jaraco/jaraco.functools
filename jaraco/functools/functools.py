@@ -5,100 +5,16 @@ import functools
 import inspect
 import itertools
 import operator
-import sys
 import time
 import types
 import warnings
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Generic,
-    Protocol,
-    SupportsFloat,
-    TypeVar,
-    cast,
-    overload,
-)
 
 import more_itertools
 
-if sys.version_info <= (3, 10):
-    from typing_extensions import Concatenate, ParamSpec
-else:
-    from typing import Concatenate, ParamSpec
-
 _DEFAULT_CACHE_WRAPPER = functools.lru_cache()
-P = ParamSpec('P')  # Parameters.
-R = TypeVar('R')  # Return type.
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Hashable
-
-    T = TypeVar('T')  # A type.
-    R1 = TypeVar('R1')  # In-between result type 1. For `compose()` overloads.
-    R2 = TypeVar('R2')  # In-between result type 2. For `compose()` overloads.
-    V = TypeVar('V')  # Used when T is taken.
-    S = TypeVar('S')  # Used as Self.
-    # Covariant version of R for protocols.
-    R_co = TypeVar('R_co', covariant=True)
-
-    class _OnceCallable(Protocol[P, R]):
-        saved_result: R
-        reset: Callable[[], None]
-
-        def __call__(self, *args: P.args, **kwargs: P.kwargs) -> R:
-            ...
-
-    class _ProxyMethodCacheWrapper(Protocol[R_co]):
-        cache_clear: Callable[[], None]
-
-        def __call__(self, *args: Hashable, **kwargs: Hashable) -> R_co:
-            ...
-
-    class _MethodCacheWrapper(Protocol[R_co]):
-        def cache_clear(self) -> None:
-            ...
-
-        def __call__(self, *args: Hashable, **kwargs: Hashable) -> R_co:
-            ...
 
 
-# `compose()` overloads below will cover most use cases.
-
-
-@overload
-def compose(
-    __func1: Callable[[R], T],
-    __func2: Callable[P, R],
-    /,
-) -> Callable[P, T]:
-    ...
-
-
-@overload
-def compose(
-    __func1: Callable[[R], T],
-    __func2: Callable[[R1], R],
-    __func3: Callable[P, R1],
-    /,
-) -> Callable[P, T]:
-    ...
-
-
-@overload
-def compose(
-    __func1: Callable[[R], T],
-    __func2: Callable[[R2], R],
-    __func3: Callable[[R1], R2],
-    __func4: Callable[P, R1],
-    /,
-) -> Callable[P, T]:
-    ...
-
-
-def compose(
-    *funcs: Callable[..., Any],
-) -> Callable[..., Any]:
+def compose(*funcs):
     """
     Compose any number of unary functions into a single unary function.
 
@@ -116,13 +32,13 @@ def compose(
     [1.5, 2.0, 2.25, 2.4, 2.5, 2.571, 2.625, 2.667, 2.7]
     """
 
-    def compose_two(f1: Callable[[R], T], f2: Callable[P, R]) -> Callable[P, T]:
+    def compose_two(f1, f2):
         return lambda *args, **kwargs: f1(f2(*args, **kwargs))
 
     return functools.reduce(compose_two, funcs)
 
 
-def once(func: Callable[P, R]) -> _OnceCallable[P, R]:
+def once(func):
     """
     Decorate func so it's only ever called the first time.
 
@@ -153,27 +69,21 @@ def once(func: Callable[P, R]) -> _OnceCallable[P, R]:
     >>> add_three(0)
     0
     """
-    if TYPE_CHECKING:
-        wrapper = cast(_OnceCallable[P, R], func)
-    else:
 
-        @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
-            if not hasattr(wrapper, 'saved_result'):
-                wrapper.saved_result = func(*args, **kwargs)
-            return wrapper.saved_result
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if not hasattr(wrapper, 'saved_result'):
+            wrapper.saved_result = func(*args, **kwargs)
+        return wrapper.saved_result
 
     wrapper.reset = lambda: vars(wrapper).__delitem__('saved_result')
     return wrapper
 
 
 def method_cache(
-    method: Callable[..., R],
-    cache_wrapper: Callable[
-        [Callable[..., R]],
-        _MethodCacheWrapper[R],
-    ] = _DEFAULT_CACHE_WRAPPER,
-) -> _MethodCacheWrapper[R] | _ProxyMethodCacheWrapper[R]:
+    method,
+    cache_wrapper=_DEFAULT_CACHE_WRAPPER,
+):
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -241,17 +151,13 @@ def method_cache(
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    if TYPE_CHECKING:
-        wrapper = cast(_ProxyMethodCacheWrapper[R], method)
 
-    else:
-
-        def wrapper(self: Any, *args: Any, **kwargs: Any) -> T:
-            # it's the first call, replace the method with a cached, bound method
-            bound_method = types.MethodType(method, self)
-            cached_method = cache_wrapper(bound_method)
-            setattr(self, method.__name__, cached_method)
-            return cached_method(*args, **kwargs)
+    def wrapper(self, *args, **kwargs):
+        # it's the first call, replace the method with a cached, bound method
+        bound_method = types.MethodType(method, self)
+        cached_method = cache_wrapper(bound_method)
+        setattr(self, method.__name__, cached_method)
+        return cached_method(*args, **kwargs)
 
     # Support cache clear even before cache has been created.
     wrapper.cache_clear = lambda: None
@@ -260,9 +166,9 @@ def method_cache(
 
 
 def _special_method_cache(
-    method: Callable[..., T],
-    cache_wrapper: Callable[[Callable[..., T]], _MethodCacheWrapper[T]],
-) -> _MethodCacheWrapper[T] | None:
+    method,
+    cache_wrapper,
+):
     """
     Because Python treats special methods differently, it's not
     possible to use instance attributes to implement the cached
@@ -281,24 +187,19 @@ def _special_method_cache(
 
     wrapper_name = '__cached' + name
 
-    if not TYPE_CHECKING:
+    def proxy(self, /, *args, **kwargs):
+        if wrapper_name not in vars(self):
+            bound = types.MethodType(method, self)
+            cache = cache_wrapper(bound)
+            setattr(self, wrapper_name, cache)
+        else:
+            cache = getattr(self, wrapper_name)
+        return cache(*args, **kwargs)
 
-        def proxy(self: Any, /, *args: Hashable, **kwargs: Hashable) -> T:
-            if wrapper_name not in vars(self):
-                bound = types.MethodType(method, self)
-                cache = cache_wrapper(bound)
-                setattr(self, wrapper_name, cache)
-            else:
-                cache = getattr(self, wrapper_name)
-            return cache(*args, **kwargs)
-
-        return proxy
-
-    proxy: _MethodCacheWrapper[T] | None = None
     return proxy
 
 
-def apply(transform: Callable[[R], T]) -> Callable[[Callable[P, R]], Callable[P, T]]:
+def apply(transform):
     """
     Decorate a function with a transform function that is
     invoked on results returned from the decorated function.
@@ -313,15 +214,15 @@ def apply(transform: Callable[[R], T]) -> Callable[[Callable[P, R]], Callable[P,
     'doc for get_numbers'
     """
 
-    def wrap(func: Callable[P, R]) -> Callable[P, T]:
+    def wrap(func):
         return functools.wraps(func)(compose(transform, func))
 
     return wrap
 
 
 def result_invoke(
-    action: Callable[[R], Any],
-) -> Callable[[Callable[P, R]], Callable[P, R]]:
+    action,
+):
     r"""
     Decorate a function with an action function that is
     invoked on the results returned from the decorated
@@ -337,9 +238,9 @@ def result_invoke(
     5
     """
 
-    def wrap(func: Callable[P, R]) -> Callable[P, R]:
+    def wrap(func):
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+        def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
             action(result)
             return result
@@ -349,7 +250,7 @@ def result_invoke(
     return wrap
 
 
-def invoke(f: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Callable[P, R]:
+def invoke(f, /, *args, **kwargs):
     """
     Call a function for its side effect after initialization.
 
@@ -391,7 +292,7 @@ def invoke(f: Callable[P, R], /, *args: P.args, **kwargs: P.kwargs) -> Callable[
     return f
 
 
-def call_aside(f: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> Callable[P, R]:
+def call_aside(f, *args, **kwargs):
     """Deprecated name for invoke."""
     warnings.warn(
         '`jaraco.functools.call_aside` is deprecated, '
@@ -402,18 +303,13 @@ def call_aside(f: Callable[P, R], *args: P.args, **kwargs: P.kwargs) -> Callable
     return invoke(f, *args, **kwargs)
 
 
-class Throttler(Generic[R]):
+class Throttler:
     """Rate-limit a function (or other callable)."""
-
-    last_called: float
-    
-    # P for parameters is unusable because of Throttler's descriptor behavior.
-    func: Callable[..., R]
 
     def __init__(
         self,
-        func: Callable[..., R] | Throttler[R],
-        max_rate: SupportsFloat = float('Inf'),
+        func,
+        max_rate=float('Inf'),
     ) -> None:
         if isinstance(func, Throttler):
             func = func.func
@@ -424,7 +320,7 @@ class Throttler(Generic[R]):
     def reset(self) -> None:
         self.last_called = 0.0
 
-    def __call__(self, *args: Any, **kwargs: Any) -> R:
+    def __call__(self, *args, **kwargs):
         self._wait()
         return self.func(*args, **kwargs)
 
@@ -435,18 +331,18 @@ class Throttler(Generic[R]):
         time.sleep(max(0.0, must_wait))
         self.last_called = time.time()
 
-    def __get__(self, obj: Any, owner: type[Any] | None = None) -> Callable[..., R]:
+    def __get__(self, obj, owner=None):
         return first_invoke(self._wait, functools.partial(self.func, obj))
 
 
-def first_invoke(func1: Callable[..., Any], func2: Callable[P, R]) -> Callable[P, R]:
+def first_invoke(func1, func2):
     """
     Return a function that when invoked will invoke func1 without
     any parameters (for its side effect) and then invoke func2
     with whatever parameters were passed, returning its result.
     """
 
-    def wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(*args, **kwargs):
         func1()
         return func2(*args, **kwargs)
 
@@ -464,21 +360,14 @@ method_caller = first_invoke(
 )
 
 
-def retry_call(
-    func: Callable[..., R],
-    cleanup: Callable[..., None] = lambda: None,
-    retries: int | float = 0,
-    trap: type[BaseException] | tuple[type[BaseException], ...] = (),
-) -> R:
+def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
     """
     Given a callable func, trap the indicated exceptions
     for up to 'retries' times, invoking cleanup on the
     exception. On the final attempt, allow any exceptions
     to propagate.
     """
-    attempts = (
-        itertools.count() if retries == float('inf') else range(cast(int, retries))
-    )
+    attempts = itertools.count() if retries == float('inf') else range(retries)
     for _ in attempts:
         try:
             return func()
@@ -489,10 +378,10 @@ def retry_call(
 
 
 def retry(
-    cleanup: Callable[..., None] = lambda: None,
-    retries: int | float = 0,
-    trap: type[BaseException] | tuple[type[BaseException], ...] = (),
-) -> Callable[[Callable[..., R]], Callable[..., R]]:
+    cleanup=lambda: None,
+    retries=0,
+    trap=(),
+):
     """
     Decorator wrapper for retry_call. Accepts arguments to retry_call
     except func and then returns a decorator for the decorated function.
@@ -507,9 +396,9 @@ def retry(
     'this is my funk'
     """
 
-    def decorate(func: Callable[..., R]) -> Callable[..., R]:
+    def decorate(func):
         @functools.wraps(func)
-        def wrapper(*f_args: Any, **f_kwargs: Any) -> R:
+        def wrapper(*f_args, **f_kwargs):
             bound = functools.partial(func, *f_args, **f_kwargs)
             return retry_call(bound, cleanup=cleanup, retries=retries, trap=trap)
 
@@ -518,9 +407,7 @@ def retry(
     return decorate
 
 
-def print_yielded(
-    func: Callable[P, collections.abc.Iterator[Any]]
-) -> Callable[P, None]:
+def print_yielded(func):
     """
     Convert a generator into a function that prints all yielded elements.
 
@@ -536,10 +423,7 @@ def print_yielded(
     return functools.wraps(func)(print_results)
 
 
-# TODO: Overload this as soon as
-# https://github.com/python/mypy/issues/8881 is fixed.
-# When T is None (Literal[None]), R becomes None too. Beware!
-def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P], R]:
+def pass_none(func):
     """
     Wrap func so it's not called if its first param is None.
 
@@ -550,7 +434,7 @@ def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P
     """
 
     @functools.wraps(func)
-    def wrapper(param: T, /, *args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(param, /, *args, **kwargs):
         if param is not None:
             return func(param, *args, **kwargs)
         return None
@@ -559,9 +443,9 @@ def pass_none(func: Callable[Concatenate[T, P], R]) -> Callable[Concatenate[T, P
 
 
 def assign_params(
-    func: Callable[..., R],
-    namespace: dict[str, Any],
-) -> functools.partial[R]:
+    func,
+    namespace,
+):
     """
     Assign parameters from namespace where func solicits.
 
@@ -594,8 +478,8 @@ def assign_params(
 
 
 def save_method_args(
-    method: Callable[Concatenate[S, P], R],
-) -> Callable[Concatenate[S, P], R]:
+    method,
+):
     """
     Wrap a method such that when it is called, the args and kwargs are
     saved on the method.
@@ -632,7 +516,7 @@ def save_method_args(
     args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')
 
     @functools.wraps(method)
-    def wrapper(self: S, /, *args: P.args, **kwargs: P.kwargs) -> R:
+    def wrapper(self, /, *args, **kwargs):
         attr_name = '_saved_' + method.__name__
         attr = args_and_kwargs(args, kwargs)
         setattr(self, attr_name, attr)
@@ -642,10 +526,10 @@ def save_method_args(
 
 
 def except_(
-    *exceptions: type[BaseException],
-    replace: Any = None,
-    use: Any = None,
-) -> Callable[[Callable[P, Any]], Callable[P, Any]]:
+    *exceptions,
+    replace=None,
+    use=None,
+):
     """
     Replace the indicated exceptions, if raised, with the indicated
     literal replacement or evaluated expression (if present).
@@ -669,9 +553,9 @@ def except_(
 
     """
 
-    def decorate(func: Callable[P, Any]) -> Callable[P, Any]:
+    def decorate(func):
         @functools.wraps(func)
-        def wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
+        def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
             except exceptions:
@@ -685,7 +569,7 @@ def except_(
     return decorate
 
 
-def identity(x: T) -> T:
+def identity(x):
     """
     Return the argument.
 
@@ -697,10 +581,10 @@ def identity(x: T) -> T:
 
 
 def bypass_when(
-    check: V,
+    check,
     *,
-    _op: Callable[[V], Any] = identity,
-) -> Callable[[Callable[[T], R]], Callable[[T], T | R]]:
+    _op=identity,
+):
     """
     Decorate a function to return its parameter when ``check``.
 
@@ -716,9 +600,9 @@ def bypass_when(
     2
     """
 
-    def decorate(func: Callable[[T], R]) -> Callable[[T], T | R]:
+    def decorate(func):
         @functools.wraps(func)
-        def wrapper(param: T, /) -> T | R:
+        def wrapper(param, /):
             return param if _op(check) else func(param)
 
         return wrapper
@@ -726,7 +610,7 @@ def bypass_when(
     return decorate
 
 
-def bypass_unless(check: V) -> Callable[[Callable[[T], R]], Callable[[T], T | R]]:
+def bypass_unless(check):
     """
     Decorate a function to return its parameter unless ``check``.
 
