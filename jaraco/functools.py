@@ -315,7 +315,9 @@ def call_aside(*args, **kwargs):
     """
     Deprecated name for invoke.
     """
-    warnings.warn("call_aside is deprecated, use invoke", DeprecationWarning)
+    warnings.warn(
+        "call_aside is deprecated, use invoke", DeprecationWarning, stacklevel=2
+    )
     return invoke(*args, **kwargs)
 
 
