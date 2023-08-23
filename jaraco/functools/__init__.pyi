@@ -1,16 +1,19 @@
 from collections.abc import Callable, Hashable, Iterator
 from functools import partial
 from operator import methodcaller
+import sys
 from typing import (
     Any,
-    Concatenate,
     Generic,
-    ParamSpec,
     Protocol,
-    SupportsFloat,
     TypeVar,
     overload,
 )
+
+if sys.version_info >= (3, 9):
+    from typing import Concatenate, ParamSpec
+else:
+    from typing_extensions import Concatenate, ParamSpec
 
 _P = ParamSpec('_P')
 _R = TypeVar('_R')
