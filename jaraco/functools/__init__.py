@@ -298,21 +298,21 @@ def call_aside(f, *args, **kwargs):
 class Throttler:
     """Rate-limit a function (or other callable)."""
 
-    def __init__(self, func, max_rate=float('Inf')) -> None:
+    def __init__(self, func, max_rate=float('Inf')):
         if isinstance(func, Throttler):
             func = func.func
         self.func = func
         self.max_rate = max_rate
         self.reset()
 
-    def reset(self) -> None:
+    def reset(self):
         self.last_called = 0
 
     def __call__(self, *args, **kwargs):
         self._wait()
         return self.func(*args, **kwargs)
 
-    def _wait(self) -> None:
+    def _wait(self):
         """Ensure at least 1/max_rate seconds from last call."""
         elapsed = time.time() - self.last_called
         must_wait = 1 / self.max_rate - elapsed
