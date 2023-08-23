@@ -80,10 +80,7 @@ def once(func):
     return wrapper
 
 
-def method_cache(
-    method,
-    cache_wrapper=_DEFAULT_CACHE_WRAPPER,
-):
+def method_cache(method, cache_wrapper=_DEFAULT_CACHE_WRAPPER):
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -165,10 +162,7 @@ def method_cache(
     return _special_method_cache(method, cache_wrapper) or wrapper
 
 
-def _special_method_cache(
-    method,
-    cache_wrapper,
-):
+def _special_method_cache(method, cache_wrapper):
     """
     Because Python treats special methods differently, it's not
     possible to use instance attributes to implement the cached
@@ -220,9 +214,7 @@ def apply(transform):
     return wrap
 
 
-def result_invoke(
-    action,
-):
+def result_invoke(action):
     r"""
     Decorate a function with an action function that is
     invoked on the results returned from the decorated
@@ -306,11 +298,7 @@ def call_aside(f, *args, **kwargs):
 class Throttler:
     """Rate-limit a function (or other callable)."""
 
-    def __init__(
-        self,
-        func,
-        max_rate=float('Inf'),
-    ) -> None:
+    def __init__(self, func, max_rate=float('Inf')) -> None:
         if isinstance(func, Throttler):
             func = func.func
         self.func = func
@@ -438,10 +426,7 @@ def pass_none(func):
     return wrapper
 
 
-def assign_params(
-    func,
-    namespace,
-):
+def assign_params(func, namespace):
     """
     Assign parameters from namespace where func solicits.
 
@@ -473,9 +458,7 @@ def assign_params(
     return functools.partial(func, **call_ns)
 
 
-def save_method_args(
-    method,
-):
+def save_method_args(method):
     """
     Wrap a method such that when it is called, the args and kwargs are
     saved on the method.
@@ -521,11 +504,7 @@ def save_method_args(
     return wrapper
 
 
-def except_(
-    *exceptions,
-    replace=None,
-    use=None,
-):
+def except_(*exceptions, replace=None, use=None):
     """
     Replace the indicated exceptions, if raised, with the indicated
     literal replacement or evaluated expression (if present).
@@ -576,11 +555,7 @@ def identity(x):
     return x
 
 
-def bypass_when(
-    check,
-    *,
-    _op=identity,
-):
+def bypass_when(check, *, _op=identity):
     """
     Decorate a function to return its parameter when ``check``.
 
