@@ -41,13 +41,16 @@ class _MethodCacheWrapper(Protocol[_R_co]):
 
 @overload
 def compose(
-    __func1: Callable[[_R], _T], __func2: Callable[_P, _R]
+    __func1: Callable[[_R], _T],
+    __func2: Callable[_P, _R],
+    /,
 ) -> Callable[_P, _T]: ...
 @overload
 def compose(
     __func1: Callable[[_R], _T],
     __func2: Callable[[_R1], _R],
     __func3: Callable[_P, _R1],
+    /,
 ) -> Callable[_P, _T]: ...
 @overload
 def compose(
@@ -55,6 +58,7 @@ def compose(
     __func2: Callable[[_R2], _R],
     __func3: Callable[[_R1], _R2],
     __func4: Callable[_P, _R1],
+    /,
 ) -> Callable[_P, _T]: ...
 def once(func: Callable[_P, _R]) -> _OnceCallable[_P, _R]: ...
 def method_cache(
