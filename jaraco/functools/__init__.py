@@ -377,11 +377,7 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
     return func()
 
 
-def retry(
-    cleanup=lambda: None,
-    retries=0,
-    trap=(),
-):
+def retry(*args, **kwargs):
     """
     Decorator wrapper for retry_call. Accepts arguments to retry_call
     except func and then returns a decorator for the decorated function.
@@ -400,7 +396,7 @@ def retry(
         @functools.wraps(func)
         def wrapper(*f_args, **f_kwargs):
             bound = functools.partial(func, *f_args, **f_kwargs)
-            return retry_call(bound, cleanup=cleanup, retries=retries, trap=trap)
+            return retry_call(bound, *args, **kwargs)
 
         return wrapper
 
