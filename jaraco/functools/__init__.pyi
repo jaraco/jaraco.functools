@@ -10,7 +10,7 @@ from typing import (
     overload,
 )
 
-if sys.version_info >= (3, 9):
+if sys.version_info >= (3, 10):
     from typing import Concatenate, ParamSpec
 else:
     from typing_extensions import Concatenate, ParamSpec
