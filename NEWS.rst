@@ -1,3 +1,12 @@
+v3.9.0
+======
+
+Features
+--------
+
+- Enhanced type hints and declare the package as typed. Module is now a package. (#22)
+
+
 v3.8.1
 ======
 

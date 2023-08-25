@@ -1,1 +1,0 @@
-Enhanced type hints and declare the package as typed. Module is now a package.
