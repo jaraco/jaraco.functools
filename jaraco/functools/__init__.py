@@ -11,8 +11,6 @@ import warnings
 
 import more_itertools
 
-_DEFAULT_CACHE_WRAPPER = functools.lru_cache()
-
 
 def compose(*funcs):
     """
@@ -80,7 +78,7 @@ def once(func):
     return wrapper
 
 
-def method_cache(method, cache_wrapper=_DEFAULT_CACHE_WRAPPER):
+def method_cache(method, cache_wrapper=functools.lru_cache()):
     """
     Wrap lru_cache to support storing the cache data in the object instances.
 
@@ -144,7 +142,6 @@ def method_cache(method, cache_wrapper=_DEFAULT_CACHE_WRAPPER):
     as ``@property``, which changes the semantics of the function.
 
     See also
-    --------
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
@@ -365,7 +362,7 @@ def retry_call(func, cleanup=lambda: None, retries=0, trap=()):
     return func()
 
 
-def retry(*args, **kwargs):
+def retry(*r_args, **r_kwargs):
     """
     Decorator wrapper for retry_call. Accepts arguments to retry_call
     except func and then returns a decorator for the decorated function.
@@ -384,7 +381,7 @@ def retry(*args, **kwargs):
         @functools.wraps(func)
         def wrapper(*f_args, **f_kwargs):
             bound = functools.partial(func, *f_args, **f_kwargs)
-            return retry_call(bound, *args, **kwargs)
+            return retry_call(bound, *r_args, **r_kwargs)
 
         return wrapper
 
