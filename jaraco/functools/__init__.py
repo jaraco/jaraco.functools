@@ -279,17 +279,6 @@ def invoke(f, /, *args, **kwargs):
     return f
 
 
-def call_aside(f, *args, **kwargs):
-    """Deprecated name for invoke."""
-    warnings.warn(
-        '`jaraco.functools.call_aside` is deprecated, '
-        'use `jaraco.functools.invoke` instead',
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return invoke(f, *args, **kwargs)
-
-
 class Throttler:
     """Rate-limit a function (or other callable)."""
 
