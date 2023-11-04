@@ -596,6 +596,18 @@ def bypass_unless(check):
     return bypass_when(check, _op=operator.not_)
 
 
+@functools.singledispatch
+def _splat_inner(args, func):
+    """Splat args to func."""
+    return func(*args)
+
+
+@_splat_inner.register
+def _(args: collections.abc.Mapping, func):
+    """Splat kargs to func as kwargs."""
+    return func(**args)
+
+
 def splat(func):
     """
     Wrap func to expect its parameters to be passed positionally in a tuple.
@@ -616,18 +628,8 @@ def splat(func):
 
     >>> list(filter(splat(operator.add), pairs))
     [(0, 2)]
-    """
 
-    @functools.wraps(func)
-    def wrapper(args):
-        return func(*args)
-
-    return wrapper
-
-
-def ksplat(func):
-    """
-    Wrap func to expect its parameters to be passed as a kwarg dict.
+    Splat also accepts a mapping argument.
 
     >>> def is_nice(msg, code):
     ...     return "smile" in msg or code == 0
@@ -636,14 +638,9 @@ def ksplat(func):
     ...     dict(msg='error :(', code=1),
     ...     dict(msg='unknown', code=0),
     ... ]
-    >>> for msg in filter(ksplat(is_nice), msgs):
+    >>> for msg in filter(splat(is_nice), msgs):
     ...     print(msg)
     {'msg': 'smile!', 'code': 20}
     {'msg': 'unknown', 'code': 0}
     """
-
-    @functools.wraps(func)
-    def wrapper(kwargs):
-        return func(**kwargs)
-
-    return wrapper
+    return functools.wraps(func)(functools.partial(_splat_inner, func=func))
