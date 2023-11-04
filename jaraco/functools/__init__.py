@@ -594,3 +594,56 @@ def bypass_unless(check):
     2
     """
     return bypass_when(check, _op=operator.not_)
+
+
+def splat(func):
+    """
+    Wrap func to expect its parameters to be passed positionally in a tuple.
+
+    Has a similar effect to that of ``itertools.starmap`` over
+    simple ``map``.
+
+    >>> pairs = [(-1, 1), (0, 2)]
+    >>> more_itertools.consume(itertools.starmap(print, pairs))
+    -1 1
+    0 2
+    >>> more_itertools.consume(map(splat(print), pairs))
+    -1 1
+    0 2
+
+    The approach generalizes to other iterators that don't have a "star"
+    equivalent, such as a "starfilter".
+
+    >>> list(filter(splat(operator.add), pairs))
+    [(0, 2)]
+    """
+
+    @functools.wraps(func)
+    def wrapper(args):
+        return func(*args)
+
+    return wrapper
+
+
+def ksplat(func):
+    """
+    Wrap func to expect its parameters to be passed as a kwarg dict.
+
+    >>> def is_nice(msg, code):
+    ...     return "smile" in msg or code == 0
+    >>> msgs = [
+    ...     dict(msg='smile!', code=20),
+    ...     dict(msg='error :(', code=1),
+    ...     dict(msg='unknown', code=0),
+    ... ]
+    >>> for msg in filter(ksplat(is_nice), msgs):
+    ...     print(msg)
+    {'msg': 'smile!', 'code': 20}
+    {'msg': 'unknown', 'code': 0}
+    """
+
+    @functools.wraps(func)
+    def wrapper(kwargs):
+        return func(**kwargs)
+
+    return wrapper
