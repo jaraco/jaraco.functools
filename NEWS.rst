@@ -1,3 +1,18 @@
+v4.0.0
+======
+
+Features
+--------
+
+- Added ``splat`` function.
+
+
+Deprecations and Removals
+-------------------------
+
+- Removed deprecated 'call_aside'. (#21)
+
+
 v3.9.0
 ======
 
