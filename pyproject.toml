@@ -17,7 +17,9 @@ classifiers = [
 	"Programming Language :: Python :: 3 :: Only",
 ]
 requires-python = ">=3.8"
-dependencies = ["more_itertools"]
+dependencies = [
+	"more_itertools",
+]
 dynamic = ["version"]
 
 [project.urls]
@@ -45,6 +47,7 @@ docs = [
 	"rst.linker >= 1.9",
 	"furo",
 	"sphinx-lint",
+
 	# tidelift
 	"jaraco.tidelift >= 1.4",
 
