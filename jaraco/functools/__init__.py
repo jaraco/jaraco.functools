@@ -639,3 +639,27 @@ def splat(func):
     {'msg': 'unknown', 'code': 0}
     """
     return functools.wraps(func)(functools.partial(_splat_inner, func=func))
+
+
+def transform_params(**replacements):
+    """
+    Decorate a function with replacement functions for parameters.
+
+    >>> none_as_colon = lambda val: val or ':'
+    >>> transform_params(sep=none_as_colon)(print)('foo', 'bar', sep=None)
+    foo:bar
+    """
+
+    def wrap(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            sig = inspect.signature(func)
+            bsig = sig.bind(*args, **kwargs)
+            args = bsig.arguments
+            for arg in replacements:
+                args[arg] = replacements[arg](args[arg])
+            return func(**args)
+
+        return wrapper
+
+    return wrap
