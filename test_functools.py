@@ -1,25 +1,30 @@
-import os
-import itertools
-import time
+from __future__ import annotations
+
 import copy
-import random
 import functools
+import itertools
+import os
 import platform
+import random
+import time
+from typing import Literal, TypeVar
 from unittest import mock
 
 import pytest
-from jaraco.classes import properties
 
-from jaraco.functools import Throttler, method_cache, retry_call, retry
+from jaraco.classes import properties
+from jaraco.functools import Throttler, method_cache, retry, retry_call
+
+_T = TypeVar("_T")
 
 
 class TestThrottler:
     @pytest.mark.xfail(
-        os.environ.get('GITHUB_ACTIONS')  # type: ignore
+        os.environ.get('GITHUB_ACTIONS', False)
         and platform.system() in ('Darwin', 'Windows'),
         reason="Performance is heavily throttled on Github Actions Mac/Windows runs",
     )
-    def test_function_throttled(self):
+    def test_function_throttled(self) -> None:
         """
         Ensure the throttler actually throttles calls.
         """
@@ -43,7 +48,7 @@ class TestThrottler:
             limited_next(counter)
         assert 28 <= next(counter) <= 32
 
-    def test_reconstruct_unwraps(self):
+    def test_reconstruct_unwraps(self) -> None:
         """
         The throttler should be re-usable - if one wants to throttle a
         function that's aready throttled, the original function should be
@@ -54,10 +59,10 @@ class TestThrottler:
         assert wrapped_again.func is next
         assert wrapped_again.max_rate == 60
 
-    def test_throttled_method(self):
+    def test_throttled_method(self) -> None:
         class ThrottledMethodClass:
             @Throttler
-            def echo(self, arg):
+            def echo(self, arg: _T) -> _T:
                 return arg
 
         tmc = ThrottledMethodClass()
@@ -68,7 +73,7 @@ class TestMethodCache:
     bad_vers = '(3, 5, 0) <= sys.version_info < (3, 5, 2)'
 
     @pytest.mark.skipif(bad_vers, reason="https://bugs.python.org/issue25447")
-    def test_deepcopy(self):
+    def test_deepcopy(self) -> None:
         """
         A deepcopy of an object with a method cache should still
         succeed.
@@ -78,7 +83,7 @@ class TestMethodCache:
             calls = 0
 
             @method_cache
-            def method(self, value):
+            def method(self, value: _T) -> _T:
                 self.calls += 1
                 return value
 
@@ -87,7 +92,7 @@ class TestMethodCache:
         ob.method(1)
         copy.deepcopy(ob)
 
-    def test_special_methods(self):
+    def test_special_methods(self) -> None:
         """
         Test method_cache with __getitem__ and __getattr__.
         """
@@ -97,12 +102,12 @@ class TestMethodCache:
             getattr_calls = 0
 
             @method_cache
-            def __getitem__(self, item):
+            def __getitem__(self, item: _T) -> _T:
                 self.getitem_calls += 1
                 return item
 
             @method_cache
-            def __getattr__(self, name):
+            def __getattr__(self, name: _T) -> _T:
                 self.getattr_calls += 1
                 return name
 
@@ -113,11 +118,11 @@ class TestMethodCache:
         assert ob.getitem_calls == 1
 
         # __getattr__
-        ob.one + ob.one
+        ob.one + ob.one  # type: ignore[operator] # Using ParamSpec on methods is still limited
         assert ob.getattr_calls == 1
 
     @pytest.mark.xfail(reason="can't replace property with cache; #6")
-    def test_property(self):
+    def test_property(self) -> None:
         """
         Can a method_cache decorated method also be a property?
         """
@@ -125,7 +130,7 @@ class TestMethodCache:
         class ClassUnderTest:
             @property
             @method_cache
-            def mything(self):  # pragma: nocover
+            def mything(self) -> float:  # pragma: nocover
                 return random.random()
 
         ob = ClassUnderTest()
@@ -133,7 +138,7 @@ class TestMethodCache:
         assert ob.mything == ob.mything
 
     @pytest.mark.xfail(reason="can't replace property with cache; #6")
-    def test_non_data_property(self):
+    def test_non_data_property(self) -> None:
         """
         A non-data property also does not work because the property
         gets replaced with a method.
@@ -142,7 +147,7 @@ class TestMethodCache:
         class ClassUnderTest:
             @properties.NonDataProperty
             @method_cache
-            def mything(self):
+            def mything(self) -> float:
                 return random.random()
 
         ob = ClassUnderTest()
@@ -151,17 +156,17 @@ class TestMethodCache:
 
 
 class TestRetry:
-    def attempt(self, arg=None):
+    def attempt(self, arg: mock.Mock | None = None) -> Literal['Success']:
         if next(self.fails_left):
             raise ValueError("Failed!")
         if arg:
             arg.touch()
         return "Success"
 
-    def set_to_fail(self, times):
+    def set_to_fail(self, times: int) -> None:
         self.fails_left = itertools.count(times, -1)
 
-    def test_set_to_fail(self):
+    def test_set_to_fail(self) -> None:
         """
         Test this test's internal failure mechanism.
         """
@@ -172,12 +177,12 @@ class TestRetry:
             self.attempt()
         assert self.attempt() == 'Success'
 
-    def test_retry_call_succeeds(self):
+    def test_retry_call_succeeds(self) -> None:
         self.set_to_fail(times=2)
         res = retry_call(self.attempt, retries=2, trap=ValueError)
         assert res == "Success"
 
-    def test_retry_call_fails(self):
+    def test_retry_call_fails(self) -> None:
         """
         Failing more than the number of retries should
         raise the underlying error.
@@ -187,28 +192,28 @@ class TestRetry:
             retry_call(self.attempt, retries=2, trap=ValueError)
         assert str(res.value) == 'Failed!'
 
-    def test_retry_multiple_exceptions(self):
+    def test_retry_multiple_exceptions(self) -> None:
         self.set_to_fail(times=2)
         errors = ValueError, NameError
         res = retry_call(self.attempt, retries=2, trap=errors)
         assert res == "Success"
 
-    def test_retry_exception_superclass(self):
+    def test_retry_exception_superclass(self) -> None:
         self.set_to_fail(times=2)
         res = retry_call(self.attempt, retries=2, trap=Exception)
         assert res == "Success"
 
-    def test_default_traps_nothing(self):
+    def test_default_traps_nothing(self) -> None:
         self.set_to_fail(times=1)
         with pytest.raises(ValueError):
             retry_call(self.attempt, retries=1)
 
-    def test_default_does_not_retry(self):
+    def test_default_does_not_retry(self) -> None:
         self.set_to_fail(times=1)
         with pytest.raises(ValueError):
             retry_call(self.attempt, trap=Exception)
 
-    def test_cleanup_called_on_exception(self):
+    def test_cleanup_called_on_exception(self) -> None:
         calls = random.randint(1, 10)
         cleanup = mock.Mock()
         self.set_to_fail(times=calls)
@@ -216,13 +221,13 @@ class TestRetry:
         assert cleanup.call_count == calls
         cleanup.assert_called_with()
 
-    def test_infinite_retries(self):
+    def test_infinite_retries(self) -> None:
         self.set_to_fail(times=999)
         cleanup = mock.Mock()
         retry_call(self.attempt, retries=float('inf'), cleanup=cleanup, trap=Exception)
         assert cleanup.call_count == 999
 
-    def test_with_arg(self):
+    def test_with_arg(self) -> None:
         self.set_to_fail(times=0)
         arg = mock.Mock()
         bound = functools.partial(self.attempt, arg)
@@ -230,13 +235,13 @@ class TestRetry:
         assert res == 'Success'
         assert arg.touch.called
 
-    def test_decorator(self):
+    def test_decorator(self) -> None:
         self.set_to_fail(times=1)
         attempt = retry(retries=1, trap=Exception)(self.attempt)
         res = attempt()
         assert res == "Success"
 
-    def test_decorator_with_arg(self):
+    def test_decorator_with_arg(self) -> None:
         self.set_to_fail(times=0)
         attempt = retry()(self.attempt)
         arg = mock.Mock()
