@@ -1,3 +1,12 @@
+v4.1.0
+======
+
+Features
+--------
+
+- Added chainable decorator.
+
+
 v4.0.2
 ======
 
