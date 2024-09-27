@@ -56,3 +56,7 @@ extensions += ['sphinx.ext.extlinks']
 # local
 
 extensions += ['jaraco.tidelift']
+
+nitpick_ignore.append(
+    ('py:class', 'jaraco.functools._T'),
+)
