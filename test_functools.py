@@ -20,8 +20,7 @@ _T = TypeVar("_T")
 
 class TestThrottler:
     @pytest.mark.xfail(
-        os.environ.get('GITHUB_ACTIONS', False)
-        and platform.system() in ('Darwin', 'Windows'),
+        'GITHUB_ACTIONS' in os.environ and platform.system() in ('Darwin', 'Windows'),
         reason="Performance is heavily throttled on Github Actions Mac/Windows runs",
     )
     def test_function_throttled(self) -> None:
