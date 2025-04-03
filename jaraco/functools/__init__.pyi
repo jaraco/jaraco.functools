@@ -1,7 +1,6 @@
 from collections.abc import Callable, Hashable, Iterator
 from functools import partial
 from operator import methodcaller
-import sys
 from typing import (
     Any,
     Generic,
@@ -10,14 +9,12 @@ from typing import (
     overload,
 )
 
-if sys.version_info >= (3, 10):
-    from typing import Concatenate, ParamSpec
-else:
-    from typing_extensions import Concatenate, ParamSpec
+from typing_extensions import Concatenate, ParamSpec, TypeVarTuple, Unpack
 
 _P = ParamSpec('_P')
 _R = TypeVar('_R')
 _T = TypeVar('_T')
+_Ts = TypeVarTuple('_Ts')
 _R1 = TypeVar('_R1')
 _R2 = TypeVar('_R2')
 _V = TypeVar('_V')
@@ -95,12 +92,12 @@ method_caller: Callable[..., methodcaller]
 def retry_call(
     func: Callable[..., _R],
     cleanup: Callable[..., None] = ...,
-    retries: int | float = ...,
+    retries: float = ...,
     trap: type[BaseException] | tuple[type[BaseException], ...] = ...,
 ) -> _R: ...
 def retry(
     cleanup: Callable[..., None] = ...,
-    retries: int | float = ...,
+    retries: float = ...,
     trap: type[BaseException] | tuple[type[BaseException], ...] = ...,
 ) -> Callable[[Callable[..., _R]], Callable[..., _R]]: ...
 def print_yielded(func: Callable[_P, Iterator[Any]]) -> Callable[_P, None]: ...
@@ -123,3 +120,4 @@ def bypass_when(
 def bypass_unless(
     check: Any,
 ) -> Callable[[Callable[[_T], _R]], Callable[[_T], _T | _R]]: ...
+def splat(func: Callable[[Unpack[_Ts]], _R]) -> Callable[[tuple[Unpack[_Ts]]], _R]: ...
