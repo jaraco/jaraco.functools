@@ -487,7 +487,7 @@ def save_method_args(method):
     >>> my_ob._saved_method.args
     ()
     """
-    args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')  # noqa: PYI024 # This is internal and we're using a stub for public types
+    args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')  # noqa: PYI024 # Internal; stubs used for typing
 
     @functools.wraps(method)
     def wrapper(self, /, *args, **kwargs):
