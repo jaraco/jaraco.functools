@@ -8,7 +8,6 @@ import operator
 import time
 import types
 import warnings
-
 from typing import Callable, TypeVar
 
 import more_itertools
@@ -488,7 +487,7 @@ def save_method_args(method):
     >>> my_ob._saved_method.args
     ()
     """
-    args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')
+    args_and_kwargs = collections.namedtuple('args_and_kwargs', 'args kwargs')  # noqa: PYI024 # This is internal and we're using a stub for public types
 
     @functools.wraps(method)
     def wrapper(self, /, *args, **kwargs):
