@@ -1,3 +1,18 @@
+v4.2.0
+======
+
+Features
+--------
+
+- Add 'passthrough' function.
+
+
+Bugfixes
+--------
+
+- Added missing `splat` in stubs -- by :user:`Avasam` (#29)
+
+
 v4.1.0
 ======
 
