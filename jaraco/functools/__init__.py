@@ -290,6 +290,23 @@ def invoke(f, /, *args, **kwargs):
     return f
 
 
+def passthrough(func):
+    """
+    Wrap the function to always return the first parameter.
+
+    >>> passthrough(print)('3')
+    3
+    '3'
+    """
+
+    @functools.wraps(func)
+    def wrapper(first, *args, **kwargs):
+        func(first, *args, **kwargs)
+        return first
+
+    return wrapper
+
+
 class Throttler:
     """Rate-limit a function (or other callable)."""
 
