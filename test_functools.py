@@ -239,9 +239,7 @@ class TestMethodCache:
         thread_1.join()
         thread_2.join()
 
-        assert barrier.broken, (
-            "2 threads should never call cache_wrapper at the same time when resolving the cached method"
-        )
+        assert barrier.broken, "race condition: 2 threads synchronized on cache wrapper"
 
 
 class TestRetry:
