@@ -1,4 +1,4 @@
-from collections.abc import Callable, Hashable, Iterator
+from collections.abc import Callable, Iterator
 from functools import partial
 from operator import methodcaller
 from typing import (
@@ -26,9 +26,9 @@ class _OnceCallable(Protocol[_P, _R]):
     reset: Callable[[], None]
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
 
-class _MethodCacheWrapper(Protocol[_R_co]):
+class _MethodCacheWrapper(Protocol[_P, _R_co]):
     def cache_clear(self) -> None: ...
-    def __call__(self, *args: Hashable, **kwargs: Hashable) -> _R_co: ...
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R_co: ...
 
 # `compose()` overloads below will cover most use cases.
 
@@ -55,7 +55,7 @@ def compose(
 ) -> Callable[_P, _T]: ...
 def once(func: Callable[_P, _R]) -> _OnceCallable[_P, _R]: ...
 def method_cache(
-    method: Callable[..., _R],
+    method: Callable[_P, _R],
     cache_wrapper: Callable[[Callable[..., _R]], _MethodCacheWrapper[_R]] = ...,
 ) -> _MethodCacheWrapper[_R]: ...
 def apply(
