@@ -55,8 +55,8 @@ def compose(
 ) -> Callable[_P, _T]: ...
 def once(func: Callable[_P, _R]) -> _OnceCallable[_P, _R]: ...
 def method_cache(
-    method: Callable[_P, _R],
-    cache_wrapper: Callable[[Callable[_P, _R]], _MethodCacheWrapper[_P, _R]] = ...,
+    method: Callable[Concatenate[Any, _P], _R],
+    cache_wrapper: Callable[[Callable[Concatenate[Any, _P], _R]], _MethodCacheWrapper[_P, _R]] = ...,
 ) -> _MethodCacheWrapper[_P, _R]: ...
 def apply(
     transform: Callable[[_R], _T],
