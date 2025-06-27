@@ -19,14 +19,12 @@ _R1 = TypeVar('_R1')
 _R2 = TypeVar('_R2')
 _V = TypeVar('_V')
 _S = TypeVar('_S')
+_C = TypeVar('_C', bound=Callable[..., Any])
 
 class _OnceCallable(Protocol[_P, _R]):
     saved_result: _R
     reset: Callable[[], None]
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
-
-class _MethodCacheWrapper(Protocol):
-    def cache_clear(self) -> None: ...
 
 # `compose()` overloads below will cover most use cases.
 
@@ -52,10 +50,7 @@ def compose(
     /,
 ) -> Callable[_P, _T]: ...
 def once(func: Callable[_P, _R]) -> _OnceCallable[_P, _R]: ...
-def method_cache(
-    method: Callable[_P, _R],
-    cache_wrapper: Callable[[Callable[_P, _R]], _MethodCacheWrapper] = ...,
-) -> Any | Callable[_P, _R] | _MethodCacheWrapper: ...
+def method_cache(method: _C, cache_wrapper: Callable[[_C], _C] = ...) -> _C: ...
 def apply(
     transform: Callable[[_R], _T],
 ) -> Callable[[Callable[_P, _R]], Callable[_P, _T]]: ...
