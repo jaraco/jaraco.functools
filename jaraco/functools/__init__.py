@@ -165,9 +165,9 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     """
     cached_methods_attr = '__cached_methods__'
     mapping_lock = threading.Lock()
+    ident = method.__qualname__
 
     def resolve_cached_method(self):
-        ident = method.__qualname__
         mapping = vars(self).setdefault(cached_methods_attr, {})
         cached_method = mapping.get(ident)
         if cached_method is None:
