@@ -163,7 +163,7 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    cached_methods_attr = '__cached_methods'
+    cached_methods_attr = '__cached_methods__'
     mapping_lock = threading.Lock()
 
     def resolve_cached_method(self):
