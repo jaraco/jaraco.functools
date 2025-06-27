@@ -227,17 +227,13 @@ class TestMethodCache:
 
         class Owner:
             @functools.partial(method_cache, cache_wrapper=try_syncing_threads)
-            def method(self) -> None:
-                pass
+            def wrapped_method(self) -> None:
+                pass  # pragma: nocover
 
         owner = Owner()
 
-        thread_1 = threading.Thread(
-            name="method_cache-1", target=getattr, args=(owner, "method")
-        )
-        thread_2 = threading.Thread(
-            name="method_cache-2", target=getattr, args=(owner, "method")
-        )
+        thread_1 = threading.Thread(target=getattr, args=(owner, "wrapped_method"))
+        thread_2 = threading.Thread(target=getattr, args=(owner, "wrapped_method"))
         thread_1.start()
         thread_2.start()
         thread_1.join()
