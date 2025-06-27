@@ -163,14 +163,14 @@ class TestMethodCache:
             calls = 0
 
             @method_cache
-            def method(self, x):
+            def method(self, x: int) -> int:
                 Super.calls += 1
                 return x * 2
 
         class Sub(Super):
             calls = 0
 
-            def method(self, x):
+            def method(self, x: int) -> int:
                 Sub.calls += 1
                 val = super().method(x)
                 return val + 1
@@ -192,7 +192,7 @@ class TestMethodCache:
             calls = 0
 
             @method_cache
-            def method(self, x):
+            def method(self, x: int) -> int:
                 Super.calls += 1
                 return x * 2
 
@@ -200,11 +200,11 @@ class TestMethodCache:
             calls = 0
 
             @method_cache
-            def method(self, x):
+            def method(self, x: int) -> int:
                 Sub.calls += 1
                 return super().method(x) + 1
 
-            def method2(self, x):
+            def method2(self, x: int) -> int:
                 return super().method(x)
 
         ob = Sub()
