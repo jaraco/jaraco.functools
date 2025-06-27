@@ -158,7 +158,7 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     the class namespace), and those that specify ``__slots__`` without
     including ``__dict__`` as one of the defined slots (as such classes don't
     provide a ``__dict__`` attribute at all).
-    
+
     See also
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
@@ -174,7 +174,9 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
             with mapping_lock:
                 cached_method = mapping.get(ident)
                 if cached_method is None:
-                    cached_method = mapping[ident] = cache_wrapper(types.MethodType(method, self))
+                    cached_method = mapping[ident] = cache_wrapper(
+                        types.MethodType(method, self)
+                    )
         return cached_method
 
     return property(resolve_cached_method)

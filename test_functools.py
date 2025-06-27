@@ -181,7 +181,6 @@ class TestMethodCache:
         assert Super.calls == 1
         assert Sub.calls == 2
 
-
     def test_subclass_override_with_cache(self) -> None:
         """
         Subclass overrides a cached method and also uses `@method_cache`.
