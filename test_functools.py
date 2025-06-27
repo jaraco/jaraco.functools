@@ -158,7 +158,7 @@ class TestMethodCache:
 
     def test_subclass_override_without_cache(self) -> None:
         """
-        Subclass overrides a cached method without using @method_cache.
+        Subclass overrides a cached method without using ``@method_cache``.
         Only the superclass method is cached.
         """
 
@@ -186,7 +186,7 @@ class TestMethodCache:
 
     def test_subclass_override_with_cache(self) -> None:
         """
-        Subclass overrides a cached method and also uses `@method_cache`.
+        Subclass overrides a cached method and also uses ``@method_cache``.
         Both subclass and superclass methods should be cached independently.
         """
 
