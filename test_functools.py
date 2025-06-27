@@ -9,7 +9,7 @@ import random
 import threading
 import time
 from contextlib import suppress
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, TypeVar, no_type_check
 from unittest import mock
 
 import pytest
@@ -146,6 +146,7 @@ class TestMethodCache:
         """
 
         class ClassUnderTest:
+            @no_type_check
             @properties.NonDataProperty
             @method_cache
             def mything(self) -> float:
@@ -209,6 +210,7 @@ class TestMethodCache:
                 return super().method(x)
 
         ob = Sub()
+
         assert ob.method(5) == 11
         assert ob.method(5) == 11
         assert ob.method2(5) == 10
