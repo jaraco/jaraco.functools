@@ -5,8 +5,8 @@ import functools
 import inspect
 import itertools
 import operator
-import time
 import threading
+import time
 import types
 import warnings
 from typing import Callable, TypeVar
