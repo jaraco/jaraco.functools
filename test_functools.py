@@ -6,8 +6,10 @@ import itertools
 import os
 import platform
 import random
+import threading
 import time
-from typing import Literal, TypeVar
+from contextlib import suppress
+from typing import Any, Literal, TypeVar
 from unittest import mock
 
 import pytest
@@ -212,6 +214,38 @@ class TestMethodCache:
         assert ob.method2(5) == 10
         assert Sub.calls == 1
         assert Super.calls == 1
+
+    def test_race_condition(self) -> None:
+        # a potential false positive:
+        # timeout is exceeded, but the threads would sync at some point
+        barrier = threading.Barrier(2, timeout=0.2)
+
+        def try_syncing_threads(func: Any) -> Any:
+            with suppress(threading.BrokenBarrierError):
+                barrier.wait()
+            return func
+
+        class Owner:
+            @functools.partial(method_cache, cache_wrapper=try_syncing_threads)
+            def method(self) -> None:
+                pass
+
+        owner = Owner()
+
+        thread_1 = threading.Thread(
+            name="method_cache-1", target=getattr, args=(owner, "method")
+        )
+        thread_2 = threading.Thread(
+            name="method_cache-2", target=getattr, args=(owner, "method")
+        )
+        thread_1.start()
+        thread_2.start()
+        thread_1.join()
+        thread_2.join()
+
+        assert barrier.broken, (
+            "2 threads should never call cache_wrapper at the same time when resolving the cached method"
+        )
 
 
 class TestRetry:
