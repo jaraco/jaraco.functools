@@ -19,16 +19,15 @@ _R1 = TypeVar('_R1')
 _R2 = TypeVar('_R2')
 _V = TypeVar('_V')
 _S = TypeVar('_S')
-_R_co = TypeVar('_R_co', covariant=True)
 
 class _OnceCallable(Protocol[_P, _R]):
     saved_result: _R
     reset: Callable[[], None]
     def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
 
-class _MethodCacheWrapper(Protocol[_P, _R_co]):
+class _MethodCacheWrapper(Protocol[_P, _R]):
     def cache_clear(self) -> None: ...
-    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R_co: ...
+    def __call__(self, *args: _P.args, **kwargs: _P.kwargs) -> _R: ...
 
 # `compose()` overloads below will cover most use cases.
 
