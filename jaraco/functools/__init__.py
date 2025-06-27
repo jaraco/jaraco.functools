@@ -5,6 +5,7 @@ import functools
 import inspect
 import itertools
 import operator
+import sys
 import threading
 import time
 import types
@@ -165,7 +166,7 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     """
     cached_methods_attr = '__cached_methods__'
     mapping_lock = threading.Lock()
-    ident = method.__qualname__
+    ident = sys.intern(method.__qualname__)
 
     def resolve_cached_method(self):
         mapping = vars(self).setdefault(cached_methods_attr, {})
