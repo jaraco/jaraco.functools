@@ -234,8 +234,8 @@ class TestMethodCache:
 
         owner = Owner()
 
-        thread_1 = threading.Thread(target=getattr, args=(owner, "wrapped_method"))
-        thread_2 = threading.Thread(target=getattr, args=(owner, "wrapped_method"))
+        thread_1 = threading.Thread(target=lambda: owner.wrapped_method)
+        thread_2 = threading.Thread(target=lambda: owner.wrapped_method)
         thread_1.start()
         thread_2.start()
         thread_1.join()
