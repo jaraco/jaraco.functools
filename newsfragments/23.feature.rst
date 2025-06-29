@@ -1,0 +1,1 @@
+Added support for overridding ``@method_cache`` in subclasses.
