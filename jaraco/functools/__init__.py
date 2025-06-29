@@ -164,18 +164,18 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
-    cached_methods_attr = sys.intern('__cached_methods__')
-    mapping_lock = threading.Lock()
+    lookup_attr = sys.intern('__cached_methods__')
+    lookup_lock = threading.Lock()
     ident = sys.intern(method.__qualname__)
 
     def resolve_cached_method(self):
-        mapping = vars(self).setdefault(cached_methods_attr, {})
-        cached_method = mapping.get(ident)
+        lookup = vars(self).setdefault(lookup_attr, {})
+        cached_method = lookup.get(ident)
         if cached_method is None:
-            with mapping_lock:
-                cached_method = mapping.get(ident)
+            with lookup_lock:
+                cached_method = lookup.get(ident)
                 if cached_method is None:
-                    cached_method = mapping[ident] = cache_wrapper(
+                    cached_method = lookup[ident] = cache_wrapper(
                         types.MethodType(method, self)
                     )
         return cached_method
