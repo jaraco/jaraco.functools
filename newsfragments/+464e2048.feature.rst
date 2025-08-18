@@ -1,0 +1,1 @@
+Add none_as function.
