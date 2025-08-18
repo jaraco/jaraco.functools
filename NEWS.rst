@@ -1,3 +1,12 @@
+v4.3.0
+======
+
+Features
+--------
+
+- Add none_as function.
+
+
 v4.2.1
 ======
 
