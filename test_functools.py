@@ -6,8 +6,10 @@ import itertools
 import os
 import platform
 import random
+import threading
 import time
-from typing import Literal, TypeVar
+from contextlib import suppress
+from typing import Any, Literal, TypeVar, no_type_check
 from unittest import mock
 
 import pytest
@@ -144,6 +146,7 @@ class TestMethodCache:
         """
 
         class ClassUnderTest:
+            @no_type_check
             @properties.NonDataProperty
             @method_cache
             def mything(self) -> float:
@@ -152,6 +155,93 @@ class TestMethodCache:
         ob = ClassUnderTest()
 
         assert ob.mything == ob.mything
+
+    def test_subclass_override_without_cache(self) -> None:
+        """
+        Subclass overrides a cached method without using ``@method_cache``.
+        Only the superclass method is cached.
+        """
+
+        class Super:
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Super.calls += 1
+                return x * 2
+
+        class Sub(Super):
+            calls = 0
+
+            def method(self, x: int) -> int:
+                Sub.calls += 1
+                val = super().method(x)
+                return val + 1
+
+        ob = Sub()
+        assert ob.method(5) == 11
+        assert ob.method(5) == 11
+        assert Super.calls == 1
+        assert Sub.calls == 2
+
+    def test_subclass_override_with_cache(self) -> None:
+        """
+        Subclass overrides a cached method and also uses ``@method_cache``.
+        Both subclass and superclass methods should be cached independently.
+        """
+
+        class Super:
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Super.calls += 1
+                return x * 2
+
+        class Sub(Super):
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Sub.calls += 1
+                return super().method(x) + 1
+
+            def method2(self, x: int) -> int:
+                return super().method(x)
+
+        ob = Sub()
+
+        assert ob.method(5) == 11
+        assert ob.method(5) == 11
+        assert ob.method2(5) == 10
+        assert Sub.calls == 1
+        assert Super.calls == 1
+
+    def test_race_condition(self) -> None:
+        # a potential false positive:
+        # timeout is exceeded, but the threads would sync at some point
+        barrier = threading.Barrier(2, timeout=0.2)
+
+        def try_syncing_threads(func: Any) -> Any:
+            with suppress(threading.BrokenBarrierError):
+                barrier.wait()
+            return func
+
+        class Owner:
+            @functools.partial(method_cache, cache_wrapper=try_syncing_threads)
+            def wrapped_method(self) -> None:
+                pass  # pragma: nocover
+
+        owner = Owner()
+
+        thread_1 = threading.Thread(target=lambda: owner.wrapped_method)
+        thread_2 = threading.Thread(target=lambda: owner.wrapped_method)
+        thread_1.start()
+        thread_2.start()
+        thread_1.join()
+        thread_2.join()
+
+        assert barrier.broken, "race condition: 2 threads synchronized on cache wrapper"
 
 
 class TestRetry:

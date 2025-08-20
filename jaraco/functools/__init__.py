@@ -5,6 +5,8 @@ import functools
 import inspect
 import itertools
 import operator
+import sys
+import threading
 import time
 import types
 import warnings
@@ -150,53 +152,35 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     Caution - do not subsequently wrap the method with another decorator, such
     as ``@property``, which changes the semantics of the function.
 
+    Similarly to ``functools.cached_property``, this decorator requires that
+    the ``__dict__`` attribute on each instance be a mutable mapping.
+    This means it will not work with some types, such as metaclasses (since
+    the ``__dict__`` attributes on type instances are read-only proxies for
+    the class namespace), and those that specify ``__slots__`` without
+    including ``__dict__`` as one of the defined slots (as such classes don't
+    provide a ``__dict__`` attribute at all).
+
     See also
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
+    lookup_attr = sys.intern('__cached_methods__')
+    lookup_lock = threading.Lock()
+    ident = sys.intern(method.__qualname__)
 
-    def wrapper(self, *args, **kwargs):
-        # it's the first call, replace the method with a cached, bound method
-        bound_method = types.MethodType(method, self)
-        cached_method = cache_wrapper(bound_method)
-        setattr(self, method.__name__, cached_method)
-        return cached_method(*args, **kwargs)
+    def resolve_cached_method(self):
+        lookup = vars(self).setdefault(lookup_attr, {})
+        cached_method = lookup.get(ident)
+        if cached_method is None:
+            with lookup_lock:
+                cached_method = lookup.get(ident)
+                if cached_method is None:
+                    cached_method = lookup[ident] = cache_wrapper(
+                        types.MethodType(method, self)
+                    )
+        return cached_method
 
-    # Support cache clear even before cache has been created.
-    wrapper.cache_clear = lambda: None
-
-    return _special_method_cache(method, cache_wrapper) or wrapper
-
-
-def _special_method_cache(method, cache_wrapper):
-    """
-    Because Python treats special methods differently, it's not
-    possible to use instance attributes to implement the cached
-    methods.
-
-    Instead, install the wrapper method under a different name
-    and return a simple proxy to that wrapper.
-
-    https://github.com/jaraco/jaraco.functools/issues/5
-    """
-    name = method.__name__
-    special_names = '__getattr__', '__getitem__'
-
-    if name not in special_names:
-        return None
-
-    wrapper_name = '__cached' + name
-
-    def proxy(self, /, *args, **kwargs):
-        if wrapper_name not in vars(self):
-            bound = types.MethodType(method, self)
-            cache = cache_wrapper(bound)
-            setattr(self, wrapper_name, cache)
-        else:
-            cache = getattr(self, wrapper_name)
-        return cache(*args, **kwargs)
-
-    return proxy
+    return property(resolve_cached_method)
 
 
 def apply(transform):
