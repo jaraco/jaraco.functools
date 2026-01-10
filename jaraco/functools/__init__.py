@@ -160,24 +160,25 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
     including ``__dict__`` as one of the defined slots (as such classes don't
     provide a ``__dict__`` attribute at all).
 
+    Resolving cached methods is not thread-safe. Make sure to synchronize in case
+    of concurrent access from multiple threads.
+
     See also
     http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
     for another implementation and additional justification.
     """
     lookup_attr = sys.intern('__cached_methods__')
-    lookup_lock = threading.Lock()
     ident = sys.intern(method.__qualname__)
 
     def resolve_cached_method(self):
         lookup = vars(self).setdefault(lookup_attr, {})
         cached_method = lookup.get(ident)
         if cached_method is None:
-            with lookup_lock:
-                cached_method = lookup.get(ident)
-                if cached_method is None:
-                    cached_method = lookup[ident] = cache_wrapper(
-                        types.MethodType(method, self)
-                    )
+            cached_method = lookup.get(ident)
+            if cached_method is None:
+                cached_method = lookup[ident] = cache_wrapper(
+                    types.MethodType(method, self)
+                )
         return cached_method
 
     return property(resolve_cached_method)
