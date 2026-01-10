@@ -6,10 +6,9 @@ import itertools
 import os
 import platform
 import random
-import threading
 import time
 from contextlib import suppress
-from typing import Any, Literal, TypeVar, no_type_check
+from typing import Literal, TypeVar, no_type_check
 from unittest import mock
 
 import pytest
