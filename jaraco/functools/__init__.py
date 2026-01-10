@@ -6,7 +6,6 @@ import inspect
 import itertools
 import operator
 import sys
-import threading
 import time
 import types
 import warnings
