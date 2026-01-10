@@ -7,7 +7,6 @@ import os
 import platform
 import random
 import time
-from contextlib import suppress
 from typing import Literal, TypeVar, no_type_check
 from unittest import mock
 
