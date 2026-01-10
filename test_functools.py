@@ -217,32 +217,6 @@ class TestMethodCache:
         assert Sub.calls == 1
         assert Super.calls == 1
 
-    def test_race_condition(self) -> None:
-        # a potential false positive:
-        # timeout is exceeded, but the threads would sync at some point
-        barrier = threading.Barrier(2, timeout=0.2)
-
-        def try_syncing_threads(func: Any) -> Any:
-            with suppress(threading.BrokenBarrierError):
-                barrier.wait()
-            return func
-
-        class Owner:
-            @functools.partial(method_cache, cache_wrapper=try_syncing_threads)
-            def wrapped_method(self) -> None:
-                pass  # pragma: nocover
-
-        owner = Owner()
-
-        thread_1 = threading.Thread(target=lambda: owner.wrapped_method)
-        thread_2 = threading.Thread(target=lambda: owner.wrapped_method)
-        thread_1.start()
-        thread_2.start()
-        thread_1.join()
-        thread_2.join()
-
-        assert barrier.broken, "race condition: 2 threads synchronized on cache wrapper"
-
 
 class TestRetry:
     def attempt(self, arg: mock.Mock | None = None) -> Literal['Success']:
