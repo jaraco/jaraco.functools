@@ -173,11 +173,9 @@ def method_cache(method, cache_wrapper=functools.lru_cache()):
         lookup = vars(self).setdefault(lookup_attr, {})
         cached_method = lookup.get(ident)
         if cached_method is None:
-            cached_method = lookup.get(ident)
-            if cached_method is None:
-                cached_method = lookup[ident] = cache_wrapper(
-                    types.MethodType(method, self)
-                )
+            cached_method = lookup[ident] = cache_wrapper(
+                types.MethodType(method, self)
+            )
         return cached_method
 
     return property(resolve_cached_method)
