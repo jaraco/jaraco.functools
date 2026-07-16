@@ -7,7 +7,7 @@ import os
 import platform
 import random
 import time
-from typing import Literal, TypeVar
+from typing import Literal, TypeVar, no_type_check
 from unittest import mock
 
 import pytest
@@ -149,6 +149,7 @@ class TestMethodCache:
         """
 
         class ClassUnderTest:
+            @no_type_check
             @properties.NonDataProperty
             @method_cache
             def mything(self) -> float:
@@ -157,6 +158,67 @@ class TestMethodCache:
         ob = ClassUnderTest()
 
         assert ob.mything == ob.mything
+
+    def test_subclass_override_without_cache(self) -> None:
+        """
+        Subclass overrides a cached method without using ``@method_cache``.
+        Only the superclass method is cached.
+        """
+
+        class Super:
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Super.calls += 1
+                return x * 2
+
+        class Sub(Super):
+            calls = 0
+
+            def method(self, x: int) -> int:
+                Sub.calls += 1
+                val = super().method(x)
+                return val + 1
+
+        ob = Sub()
+        assert ob.method(5) == 11
+        assert ob.method(5) == 11
+        assert Super.calls == 1
+        assert Sub.calls == 2
+
+    def test_subclass_override_with_cache(self) -> None:
+        """
+        Subclass overrides a cached method and also uses ``@method_cache``.
+        Both subclass and superclass methods should be cached independently.
+        """
+
+        class Super:
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Super.calls += 1
+                return x * 2
+
+        class Sub(Super):
+            calls = 0
+
+            @method_cache
+            def method(self, x: int) -> int:
+                Sub.calls += 1
+                return super().method(x) + 1
+
+            def method2(self, x: int) -> int:
+                return super().method(x)
+
+        ob = Sub()
+
+        assert ob.method(5) == 11
+        assert ob.method(5) == 11
+        assert ob.method2(5) == 10
+        assert Sub.calls == 1
+        assert Super.calls == 1
 
 
 class TestRetry:
