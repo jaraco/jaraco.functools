@@ -9,7 +9,7 @@ import time
 import types
 import warnings
 from collections.abc import Callable
-from typing import TypeVar
+from typing import Concatenate, ParamSpec, TypeVar
 
 import more_itertools
 
@@ -725,10 +725,13 @@ def splat(func):
     return functools.wraps(func)(functools.partial(_splat_inner, func=func))
 
 
+_P = ParamSpec('_P')
 _T = TypeVar('_T')
 
 
-def chainable(method: Callable[[_T, ...], None]) -> Callable[[_T, ...], _T]:
+def chainable(
+    method: Callable[Concatenate[_T, _P], None],
+) -> Callable[Concatenate[_T, _P], _T]:
     """
     Wrap an instance method to always return self.
 
