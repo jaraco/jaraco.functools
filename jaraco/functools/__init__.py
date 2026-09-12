@@ -338,6 +338,8 @@ class Throttler:
         self.last_called = time.time()
 
     def __get__(self, obj, owner=None):
+        if obj is None:
+            return self
         return first_invoke(self._wait, functools.partial(self.func, obj))
 
 
