@@ -21,4 +21,4 @@ def patch_for_issue_12() -> None:  # pragma: nocover
     if sys.version_info[:3] != affected_ver:
         return
     mc = jaraco.functools.method_cache
-    mc.__doc__ = re.sub(r'^(\s+)75', r'\g<1>76', mc.__doc__ or "", flags=re.M)
+    mc.__doc__ = re.sub(r'^(\s+)75', r'\g<1>76', mc.__doc__ or "", flags=re.MULTILINE)
