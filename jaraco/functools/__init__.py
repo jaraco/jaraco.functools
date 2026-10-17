@@ -759,7 +759,8 @@ def chainable(method: Callable[[_T, ...], None]) -> Callable[[_T, ...], _T]:
 
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        assert method(self, *args, **kwargs) is None
+        result = method(self, *args, **kwargs)
+        assert result is None
         return self
 
     return wrapper
