@@ -505,9 +505,20 @@ def assign_params(func, namespace):
     ...         print(arg)
     >>> assign_params(Handler().meth, dict(arg='crystal', foo='clear'))()
     crystal
+
+    Variadic positional parameters do not solicit keyword arguments.
+
+    >>> def func(x, *args, y=3):
+    ...     return x, args, y
+    >>> assign_params(func, dict(x=2, args=('extra',), y=4, z=5))()
+    (2, (), 4)
     """
     sig = inspect.signature(func)
-    params = sig.parameters.keys()
+    params = (
+        name
+        for name, param in sig.parameters.items()
+        if param.kind != inspect.Parameter.VAR_POSITIONAL
+    )
     call_ns = {k: namespace[k] for k in params if k in namespace}
     return functools.partial(func, **call_ns)
 
