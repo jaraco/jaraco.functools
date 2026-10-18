@@ -324,7 +324,7 @@ class Throttler:
         self.reset()
 
     def reset(self):
-        self.last_called = 0
+        self.last_called = -float('Inf')
 
     def __call__(self, *args, **kwargs):
         self._wait()
@@ -332,10 +332,10 @@ class Throttler:
 
     def _wait(self):
         """Ensure at least 1/max_rate seconds from last call."""
-        elapsed = time.time() - self.last_called
+        elapsed = time.monotonic() - self.last_called
         must_wait = 1 / self.max_rate - elapsed
         time.sleep(max(0, must_wait))
-        self.last_called = time.time()
+        self.last_called = time.monotonic()
 
     def __get__(self, obj, owner=None):
         return first_invoke(self._wait, functools.partial(self.func, obj))
