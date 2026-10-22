@@ -15,12 +15,24 @@ from jaraco.classes import properties
 
 from jaraco.functools import (
     Throttler,
+    except_,
     method_cache,
     retry,
     retry_call,
 )
 
 _T = TypeVar("_T")
+
+
+def test_except_expression_type_error() -> None:
+    safe_int = except_(ValueError, replace=0, use='args[0] + 1')(int)
+    with pytest.raises(TypeError):
+        safe_int('not-an-int')
+
+
+def test_except_success_skips_expression() -> None:
+    safe_int = except_(ValueError, use='args[0] + 1')(int)
+    assert safe_int('5') == 5
 
 
 class TestThrottler:

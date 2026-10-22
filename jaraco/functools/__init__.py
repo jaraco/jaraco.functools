@@ -588,10 +588,7 @@ def except_(*exceptions, replace=None, use=None):
             try:
                 return func(*args, **kwargs)
             except exceptions:
-                try:
-                    return eval(use)
-                except TypeError:
-                    return replace
+                return replace if use is None else eval(use)
 
         return wrapper
 
