@@ -84,6 +84,8 @@ def once(func):
             wrapper.saved_result = func(*args, **kwargs)
         return wrapper.saved_result
 
+    # Cache state belongs to this wrapper, not to the wrapped callable.
+    vars(wrapper).pop('saved_result', None)
     wrapper.reset = lambda: vars(wrapper).__delitem__('saved_result')
     return wrapper
 
